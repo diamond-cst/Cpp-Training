@@ -7,7 +7,7 @@
 
 // 测试Card类 (Test Card class)
 void testCard() {
-    std::cout << "测试Card类... (Testing Card class...)\n";
+    std::cout << "测试卡牌类...\n";
 
     // 测试标准扑克牌 (Test standard playing card)
     Card card1(Card::Suit::HEARTS, Card::Rank::ACE);
@@ -26,14 +26,14 @@ void testCard() {
     Card card3 = card1;
     assert(card3 == card1);
 
-    std::cout << "  Card1: " << card1.toString(false) << "\n";
-    std::cout << "  Card2: " << card2.toString(false) << "\n";
-    std::cout << "  ✓ Card类测试通过！(Card class tests passed!)\n\n";
+    std::cout << "  牌1: " << card1.toString(false) << "\n";
+    std::cout << "  牌2: " << card2.toString(false) << "\n";
+    std::cout << "  卡牌类测试通过！\n\n";
 }
 
 // 测试Deck类 (Test Deck class)
 void testDeck() {
-    std::cout << "测试Deck类... (Testing Deck class...)\n";
+    std::cout << "测试牌组类...\n";
 
     Deck<Card> deck(10);
 
@@ -62,13 +62,13 @@ void testDeck() {
     deck.removeCard(0);
     assert(deck.getSize() == 4);
 
-    std::cout << "  Deck大小: " << deck.getSize() << "\n";
-    std::cout << "  ✓ Deck类测试通过！(Deck class tests passed!)\n\n";
+    std::cout << "  牌组大小: " << deck.getSize() << "\n";
+    std::cout << "  牌组类测试通过！\n\n";
 }
 
 // 测试异常处理 (Test exception handling)
 void testExceptions() {
-    std::cout << "测试异常处理... (Testing exception handling...)\n";
+    std::cout << "测试异常处理...\n";
 
     try {
         // 测试越界异常 (Test out of bounds)
@@ -88,12 +88,12 @@ void testExceptions() {
         std::cout << "  捕获异常: " << e.what() << "\n";
     }
 
-    std::cout << "  ✓ 异常处理测试通过！(Exception handling tests passed!)\n\n";
+    std::cout << "  异常处理测试通过！\n\n";
 }
 
 // 测试魔术算法 (Test magic trick algorithm)
 void testMagicTrick() {
-    std::cout << "测试21张牌魔术算法... (Testing 21 card trick algorithm...)\n";
+    std::cout << "测试21张牌魔术算法...\n";
 
     TwentyOneCardTrick trick(false);
     trick.setPlayerName("测试玩家");
@@ -107,12 +107,12 @@ void testMagicTrick() {
     std::cout << "  当前轮数: " << trick.getCurrentRound() << "\n";
     std::cout << "  是否完成: " << (trick.isComplete() ? "是" : "否") << "\n";
 
-    std::cout << "  ✓ 魔术类测试通过！(Magic trick class tests passed!)\n\n";
+    std::cout << "  魔术类测试通过！\n\n";
 }
 
 // 测试保存/加载 (Test save/load)
 void testSaveLoad() {
-    std::cout << "测试保存/加载功能... (Testing save/load functionality...)\n";
+    std::cout << "测试保存/加载功能...\n";
 
     try {
         TwentyOneCardTrick trick1(false);
@@ -131,7 +131,7 @@ void testSaveLoad() {
         assert(trick2.getPlayerName() == "测试玩家");
         assert(trick2.getCurrentRound() == trick1.getCurrentRound());
 
-        std::cout << "  ✓ 保存/加载测试通过！(Save/load tests passed!)\n\n";
+        std::cout << "  保存/加载测试通过！\n\n";
     } catch (const FileIOException& e) {
         std::cerr << "  文件IO错误: " << e.what() << "\n";
     }
@@ -142,7 +142,6 @@ int main() {
     std::cout << "\n";
     std::cout << "========================================\n";
     std::cout << "  21张牌魔术 - 单元测试\n";
-    std::cout << "  21 Card Trick - Unit Tests\n";
     std::cout << "========================================\n\n";
 
     try {
@@ -153,8 +152,7 @@ int main() {
         testSaveLoad();
 
         std::cout << "========================================\n";
-        std::cout << "  ✓ 所有测试通过！\n";
-        std::cout << "  ✓ All tests passed!\n";
+        std::cout << "  所有测试通过！\n";
         std::cout << "========================================\n\n";
 
         return 0;

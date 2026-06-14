@@ -30,7 +30,7 @@ protected:
 
     explicit MagicTrick(int initialDeckCapacity = 52, bool colors = false)
         : workingDeck(initialDeckCapacity), currentRound(0), rememberedCard(),
-          playerName("Player"), score(0), useColors(colors), useAnimation(false),
+          playerName("玩家"), score(0), useColors(colors), useAnimation(false),
           magicianMode(false), soundEnabled(false), hideFaces(false), numericCards(false),
           lastGuessCorrect(false), hasRevealResult(false), elapsedSeconds(0),
           startTime(std::chrono::steady_clock::now()), replayManager(nullptr) {}

@@ -64,6 +64,15 @@ public:
     // 终端提示音 (Terminal beep sound)
     static void playBeep(int count = 1, int delayMs = 80);
 
+    // 发牌提示音：轻量、非阻塞，适合逐张发牌 (Lightweight non-blocking deal sound)
+    static void playDealSound();
+
+    // 揭晓提示音：短促同步，紧贴答案显示 (Short reveal sound)
+    static void playRevealSound();
+
+    // 结果反馈音：短促同步，避免阻塞文字显示 (Short result feedback sound)
+    static void playResultSound(bool success);
+
     // P/R暂停恢复 (P/R pause and resume)
     static void waitForResume();
 
@@ -80,7 +89,7 @@ public:
     static bool confirm(const std::string& message);
 
     // 按任意键继续 (Press any key to continue)
-    static void pressAnyKey(const std::string& message = "按回车键继续... (Press Enter to continue...)");
+    static void pressAnyKey(const std::string& message = "按回车键继续...");
 
     // 格式化时间 (Format time)
     static std::string formatTime(int seconds);

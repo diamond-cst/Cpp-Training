@@ -5,14 +5,14 @@
 // 构造函数：数字牌 (Constructor for numeric cards)
 Card::Card(int value) : suit(Suit::NONE), rank(Rank::NUMERIC), numericValue(value) {
     if (value < 1) {
-        throw InvalidCardException("Numeric value must be at least 1");
+        throw InvalidCardException("数字牌的数值必须至少为1");
     }
 }
 
 // 构造函数：标准扑克牌 (Constructor for standard playing cards)
 Card::Card(Suit s, Rank r) : suit(s), rank(r), numericValue(0) {
     if (s == Suit::NONE || r == Rank::NUMERIC) {
-        throw InvalidCardException("Invalid suit or rank for standard card");
+        throw InvalidCardException("标准扑克牌的花色或点数无效");
     }
     // 计算数字值用于比较 (Calculate numeric value for comparison)
     numericValue = static_cast<int>(r);
@@ -160,7 +160,7 @@ std::istream& operator>>(std::istream& is, Card& card) {
     int value;
     is >> value;
     if (is.fail()) {
-        throw InvalidInputException("Failed to read card value");
+        throw InvalidInputException("读取牌面失败");
     }
     card = Card(value);
     return is;

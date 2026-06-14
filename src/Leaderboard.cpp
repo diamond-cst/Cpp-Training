@@ -81,14 +81,13 @@ PlayerRecord* Leaderboard::getPlayerRecord(const std::string& playerName) {
 void Leaderboard::display() const {
     std::cout << "\n";
     std::cout << "╔════════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║              排行榜 (Leaderboard) - Top " << std::setw(2) << MAX_RECORDS << "                ║\n";
+    std::cout << "║                        排行榜前 " << std::setw(2) << MAX_RECORDS << " 名                       ║\n";
     std::cout << "╠════════════════════════════════════════════════════════════════╣\n";
     std::cout << "║ 排名 │ 玩家名称        │ 分数  │ 游戏 │ 正确 │ 连胜 ║\n";
-    std::cout << "║ Rank │ Player Name     │ Score │ Games│ Wins │Streak║\n";
     std::cout << "╠════════════════════════════════════════════════════════════════╣\n";
 
     if (records.empty()) {
-        std::cout << "║                    暂无记录 (No records)                       ║\n";
+        std::cout << "║                         暂无记录                              ║\n";
     } else {
         for (size_t i = 0; i < records.size() && i < MAX_RECORDS; ++i) {
             const auto& record = records[i];
@@ -109,17 +108,16 @@ void Leaderboard::displayColored() const {
     std::cout << "\n";
     Utils::printStyled("╔════════════════════════════════════════════════════════════════╗\n",
                       Utils::COLOR_CYAN, Utils::BOLD);
-    Utils::printStyled("║              排行榜 (Leaderboard) - Top 10                     ║\n",
+    Utils::printStyled("║                        排行榜前 10 名                         ║\n",
                       Utils::COLOR_CYAN, Utils::BOLD);
     Utils::printStyled("╠════════════════════════════════════════════════════════════════╣\n",
                       Utils::COLOR_CYAN, Utils::BOLD);
     std::cout << "║ 排名 │ 玩家名称        │ 分数  │ 游戏 │ 正确 │ 连胜 ║\n";
-    std::cout << "║ Rank │ Player Name     │ Score │ Games│ Wins │Streak║\n";
     Utils::printStyled("╠════════════════════════════════════════════════════════════════╣\n",
                       Utils::COLOR_CYAN, Utils::BOLD);
 
     if (records.empty()) {
-        std::cout << "║                    暂无记录 (No records)                       ║\n";
+        std::cout << "║                         暂无记录                              ║\n";
     } else {
         for (size_t i = 0; i < records.size() && i < MAX_RECORDS; ++i) {
             const auto& record = records[i];
@@ -149,7 +147,7 @@ void Leaderboard::displayColored() const {
 void Leaderboard::save() const {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
-        throw FileIOException(filename, "open for writing");
+        throw FileIOException(filename, "写入排行榜");
     }
 
     // 保存记录数量 (Save record count)

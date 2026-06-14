@@ -13,6 +13,7 @@ SAVE_DIR = saves
 
 # 源文件 (Source files)
 SOURCES = $(SRC_DIR)/Card.cpp \
+          $(SRC_DIR)/ThreePileCardTrick.cpp \
           $(SRC_DIR)/TwentyOneCardTrick.cpp \
           $(SRC_DIR)/TwentySevenCardTrick.cpp \
           $(SRC_DIR)/ConfigurableCardTrick.cpp \
@@ -41,7 +42,7 @@ console: $(CONSOLE_TARGET)
 
 $(CONSOLE_TARGET): $(OBJECTS) $(BUILD_DIR)/main_console.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
-	@echo "控制台版本编译完成！(Console version compiled!)"
+	@echo "控制台版本编译完成！"
 
 # 增强版本 (Enhanced version)
 .PHONY: enhanced
@@ -49,15 +50,15 @@ enhanced: $(ENHANCED_TARGET)
 
 $(ENHANCED_TARGET): $(OBJECTS) $(BUILD_DIR)/main_enhanced.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
-	@echo "增强版本编译完成！(Enhanced version compiled!)"
+	@echo "增强版本编译完成！"
 
 # 测试程序 (Test program)
 .PHONY: test
 test: $(TEST_TARGET)
 
-$(TEST_TARGET): $(BUILD_DIR)/Card.o $(BUILD_DIR)/TwentyOneCardTrick.o $(BUILD_DIR)/Utils.o $(BUILD_DIR)/PileChoice.o $(BUILD_DIR)/ReplayManager.o $(BUILD_DIR)/test_main.o
+$(TEST_TARGET): $(BUILD_DIR)/Card.o $(BUILD_DIR)/ThreePileCardTrick.o $(BUILD_DIR)/TwentyOneCardTrick.o $(BUILD_DIR)/Utils.o $(BUILD_DIR)/PileChoice.o $(BUILD_DIR)/ReplayManager.o $(BUILD_DIR)/test_main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
-	@echo "测试程序编译完成！(Test program compiled!)"
+	@echo "测试程序编译完成！"
 
 # GUI版本 (GUI version)
 .PHONY: gui
@@ -87,7 +88,7 @@ $(BUILD_DIR):
 clean:
 	rm -rf $(BUILD_DIR)/*.o
 	rm -f $(CONSOLE_TARGET) $(ENHANCED_TARGET) $(TEST_TARGET) $(GUI_TARGET)
-	@echo "清理完成！(Cleaned!)"
+	@echo "清理完成！"
 
 # 运行增强版本 (Run enhanced version)
 .PHONY: run
@@ -108,19 +109,19 @@ run-test: test
 .PHONY: debug
 debug: CXXFLAGS += -g -O0
 debug: clean console
-	@echo "调试版本编译完成！(Debug version compiled!)"
+	@echo "调试版本编译完成！"
 
 # 发布编译 (Release build)
 .PHONY: release
 release: CXXFLAGS += -O3 -DNDEBUG
 release: clean console
-	@echo "发布版本编译完成！(Release version compiled!)"
+	@echo "发布版本编译完成！"
 
 # 帮助 (Help)
 .PHONY: help
 help:
-	@echo "可用目标 (Available targets):"
-	@echo "  make all         - 编译所有 (默认：增强版本)"
+	@echo "可用目标:"
+	@echo "  make all         - 编译默认版本（增强版）"
 	@echo "  make console     - 编译控制台版本"
 	@echo "  make enhanced    - 编译增强版本（推荐）"
 	@echo "  make test        - 编译测试程序"

@@ -17,16 +17,15 @@ void displayMainMenu() {
     std::cout << "\n";
     std::cout << "╔════════════════════════════════════════╗\n";
     std::cout << "║     21张牌魔术 - 主菜单                ║\n";
-    std::cout << "║     21 Card Trick - Main Menu          ║\n";
     std::cout << "╚════════════════════════════════════════╝\n";
     std::cout << "\n";
-    std::cout << "1. 开始新游戏 (Start New Game)\n";
-    std::cout << "2. 加载游戏 (Load Game)\n";
-    std::cout << "3. 查看排行榜 (View Leaderboard)\n";
-    std::cout << "4. 设置 (Settings)\n";
-    std::cout << "5. 退出 (Exit)\n";
+    std::cout << "1. 开始新游戏\n";
+    std::cout << "2. 加载游戏\n";
+    std::cout << "3. 查看排行榜\n";
+    std::cout << "4. 设置\n";
+    std::cout << "5. 退出\n";
     std::cout << "\n";
-    std::cout << "请选择 (Choose): ";
+    std::cout << "请选择: ";
 }
 
 // 开始新游戏 (Start new game)
@@ -34,12 +33,12 @@ void startNewGame() {
     try {
         clearScreen();
 
-        std::cout << "请输入你的名字 (Enter your name): ";
+        std::cout << "请输入你的名字: ";
         std::string playerName;
         std::cin.ignore();
         std::getline(std::cin, playerName);
 
-        std::cout << "是否使用彩色显示？(Use colors?) (y/n): ";
+        std::cout << "是否使用彩色显示？（输入 y/n）: ";
         char useColor;
         std::cin >> useColor;
 
@@ -60,36 +59,35 @@ void startNewGame() {
         // 揭示结果 (Reveal result)
         trick->reveal();
 
-        std::cout << "\n是否保存游戏？(Save game?) (y/n): ";
+        std::cout << "\n是否保存游戏？（输入 y/n）: ";
         char saveChoice;
         std::cin >> saveChoice;
 
         if (saveChoice == 'y' || saveChoice == 'Y') {
-            std::cout << "选择存档槽位 (1-5) (Choose save slot 1-5): ";
+            std::cout << "选择存档槽位（1-5）: ";
             int slot;
             std::cin >> slot;
 
             if (slot >= 1 && slot <= 5) {
                 std::string filename = "saves/slot_" + std::to_string(slot) + ".dat";
                 trick->saveState(filename);
-                std::cout << "游戏已保存！(Game saved!)\n";
+                std::cout << "游戏已保存！\n";
             } else {
-                std::cout << "无效的槽位！(Invalid slot!)\n";
+                std::cout << "无效的槽位！\n";
             }
         }
 
         std::cout << "\n按回车键返回主菜单...\n";
-        std::cout << "Press Enter to return to main menu...\n";
         std::cin.ignore();
         std::cin.get();
 
     } catch (const MagicTrickException& e) {
-        std::cerr << "错误 (Error): " << e.what() << "\n";
+        std::cerr << "错误: " << e.what() << "\n";
         std::cout << "\n按回车键继续...\n";
         std::cin.ignore();
         std::cin.get();
     } catch (const std::exception& e) {
-        std::cerr << "未知错误 (Unknown error): " << e.what() << "\n";
+        std::cerr << "未知错误: " << e.what() << "\n";
         std::cout << "\n按回车键继续...\n";
         std::cin.ignore();
         std::cin.get();
@@ -101,12 +99,12 @@ void loadGame() {
     try {
         clearScreen();
 
-        std::cout << "选择存档槽位 (1-5) (Choose save slot 1-5): ";
+        std::cout << "选择存档槽位（1-5）: ";
         int slot;
         std::cin >> slot;
 
         if (slot < 1 || slot > 5) {
-            std::cout << "无效的槽位！(Invalid slot!)\n";
+            std::cout << "无效的槽位！\n";
             std::cout << "\n按回车键继续...\n";
             std::cin.ignore();
             std::cin.get();
@@ -118,9 +116,9 @@ void loadGame() {
         std::unique_ptr<MagicTrick> trick = std::make_unique<TwentyOneCardTrick>();
         trick->loadState(filename);
 
-        std::cout << "\n游戏已加载！(Game loaded!)\n";
-        std::cout << "玩家 (Player): " << trick->getPlayerName() << "\n";
-        std::cout << "当前轮数 (Current round): " << trick->getCurrentRound() << "\n";
+        std::cout << "\n游戏已加载！\n";
+        std::cout << "玩家: " << trick->getPlayerName() << "\n";
+        std::cout << "当前轮数: " << trick->getCurrentRound() << "\n";
 
         // 继续游戏 (Continue game)
         while (!trick->isComplete()) {
@@ -131,18 +129,17 @@ void loadGame() {
         trick->reveal();
 
         std::cout << "\n按回车键返回主菜单...\n";
-        std::cout << "Press Enter to return to main menu...\n";
         std::cin.ignore();
         std::cin.get();
 
     } catch (const FileIOException& e) {
-        std::cerr << "文件错误 (File error): " << e.what() << "\n";
-        std::cout << "存档不存在或已损坏。(Save file doesn't exist or is corrupted.)\n";
+        std::cerr << "文件错误: " << e.what() << "\n";
+        std::cout << "存档不存在或已损坏。\n";
         std::cout << "\n按回车键继续...\n";
         std::cin.ignore();
         std::cin.get();
     } catch (const MagicTrickException& e) {
-        std::cerr << "错误 (Error): " << e.what() << "\n";
+        std::cerr << "错误: " << e.what() << "\n";
         std::cout << "\n按回车键继续...\n";
         std::cin.ignore();
         std::cin.get();
@@ -152,7 +149,6 @@ void loadGame() {
 // 主函数 (Main function)
 int main() {
     std::cout << "正在启动21张牌魔术...\n";
-    std::cout << "Starting 21 Card Trick...\n\n";
 
     bool running = true;
 
@@ -175,7 +171,6 @@ int main() {
             case 3:
                 clearScreen();
                 std::cout << "排行榜功能即将推出...\n";
-                std::cout << "Leaderboard feature coming soon...\n";
                 std::cout << "\n按回车键继续...\n";
                 std::cin.ignore();
                 std::cin.get();
@@ -184,7 +179,6 @@ int main() {
             case 4:
                 clearScreen();
                 std::cout << "设置功能即将推出...\n";
-                std::cout << "Settings feature coming soon...\n";
                 std::cout << "\n按回车键继续...\n";
                 std::cin.ignore();
                 std::cin.get();
@@ -192,13 +186,11 @@ int main() {
 
             case 5:
                 std::cout << "\n感谢游玩！再见！\n";
-                std::cout << "Thanks for playing! Goodbye!\n";
                 running = false;
                 break;
 
             default:
                 std::cout << "\n无效选择！请重试。\n";
-                std::cout << "Invalid choice! Please try again.\n";
                 std::cout << "\n按回车键继续...\n";
                 std::cin.ignore();
                 std::cin.get();

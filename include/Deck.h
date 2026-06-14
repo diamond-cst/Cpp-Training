@@ -75,7 +75,7 @@ Deck<T>::Deck() : cards(nullptr), capacity(52), size(0) {
 template <typename T>
 Deck<T>::Deck(int initialCapacity) : cards(nullptr), capacity(initialCapacity), size(0) {
     if (initialCapacity <= 0) {
-        throw InvalidCardException("Deck capacity must be positive");
+        throw InvalidCardException("牌组容量必须大于0");
     }
     cards = new T[capacity];
 }
@@ -229,7 +229,7 @@ Deck<T> Deck<T>::operator-(int index) const {
 template <typename T>
 Deck<T> Deck<T>::operator*(int times) const {
     if (times < 0) {
-        throw InvalidInputException("Multiplication times must be non-negative");
+        throw InvalidInputException("重复次数不能为负数");
     }
     Deck<T> result(size * times);
     for (int t = 0; t < times; ++t) {
@@ -277,7 +277,7 @@ const T& Deck<T>::operator[](int index) const {
 // 输出流运算符 (Output stream operator)
 template <typename U>
 std::ostream& operator<<(std::ostream& os, const Deck<U>& deck) {
-    os << "Deck [" << deck.size << "/" << deck.capacity << "]: ";
+    os << "牌组 [" << deck.size << "/" << deck.capacity << "]: ";
     for (int i = 0; i < deck.size; ++i) {
         os << deck.cards[i];
         if (i < deck.size - 1) os << " ";
@@ -291,7 +291,7 @@ std::istream& operator>>(std::istream& is, Deck<U>& deck) {
     int count;
     is >> count;
     if (is.fail()) {
-        throw InvalidInputException("Failed to read deck size");
+        throw InvalidInputException("读取牌组大小失败");
     }
     deck.clear();
     for (int i = 0; i < count; ++i) {

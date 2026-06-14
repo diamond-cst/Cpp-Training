@@ -17,9 +17,9 @@ std::istream& operator>>(std::istream& is, PileChoice& choice) {
     is >> token;
     if (is.fail()) {
         if (is.eof()) {
-            throw InvalidInputException("Input stream closed while reading pile choice");
+            throw InvalidInputException("读取牌堆选择时输入已结束");
         }
-        throw InvalidInputException("Failed to read pile choice");
+        throw InvalidInputException("读取牌堆选择失败");
     }
 
     if (token == "P" || token == "p") {
@@ -34,5 +34,5 @@ std::istream& operator>>(std::istream& is, PileChoice& choice) {
         return is;
     }
 
-    throw InvalidInputException("Pile choice must be 1, 2, 3, or P");
+    throw InvalidInputException("牌堆选择只能输入 1、2、3 或 P");
 }

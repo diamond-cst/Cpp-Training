@@ -63,12 +63,12 @@ void NetworkGame::SocketHandle::reset(int socketFd) {
 
 void NetworkGame::runMagicianServer(int port) {
     if (port < 1024 || port > 65535) {
-        throw InvalidInputException("Port must be between 1024 and 65535");
+        throw InvalidInputException("端口号必须在1024到65535之间");
     }
 
     SocketHandle server(socket(AF_INET, SOCK_STREAM, 0));
     if (!server.isValid()) {
-        throw MagicTrickException(socketError("Failed to create server socket"));
+        throw MagicTrickException(socketError("创建服务器套接字失败"));
     }
 
     int opt = 1;
@@ -81,30 +81,30 @@ void NetworkGame::runMagicianServer(int port) {
     address.sin_port = htons(static_cast<uint16_t>(port));
 
     if (bind(server.fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) < 0) {
-        throw MagicTrickException(socketError("Failed to bind server socket"));
+        throw MagicTrickException(socketError("绑定服务器端口失败"));
     }
 
     if (listen(server.fd, BACKLOG) < 0) {
-        throw MagicTrickException(socketError("Failed to listen on server socket"));
+        throw MagicTrickException(socketError("监听服务器端口失败"));
     }
 
     Utils::printColored("\n魔术师端已启动，等待观众连接...\n", Utils::COLOR_GREEN);
-    Utils::printColored("Magician server listening on port " + std::to_string(port) + ".\n",
+    Utils::printColored("当前监听端口: " + std::to_string(port) + "\n",
                         Utils::COLOR_GREEN);
 
     sockaddr_in clientAddress;
     socklen_t clientLength = sizeof(clientAddress);
     SocketHandle client(accept(server.fd, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength));
     if (!client.isValid()) {
-        throw MagicTrickException(socketError("Failed to accept client"));
+        throw MagicTrickException(socketError("接收观众连接失败"));
     }
 
     char clientIp[INET_ADDRSTRLEN] = {0};
     inet_ntop(AF_INET, &clientAddress.sin_addr, clientIp, sizeof(clientIp));
-    Utils::printColored("观众已连接 (Audience connected): ", Utils::COLOR_CYAN);
+    Utils::printColored("观众已连接: ", Utils::COLOR_CYAN);
     std::cout << clientIp << "\n";
 
-    sendLine(client.fd, "WELCOME|21 Card Network Duel");
+    sendLine(client.fd, "WELCOME|21张牌网络对战");
 
     std::vector<std::string> deck = createDeck();
     shuffleDeck(deck);
@@ -125,16 +125,15 @@ void NetworkGame::runMagicianServer(int port) {
 
         std::string line = receiveLine(client.fd);
         if (line.find("CHOICE|") != 0) {
-            throw InvalidGameStateException("Unexpected network message: " + line);
+            throw InvalidGameStateException("收到异常网络消息: " + line);
         }
 
         int chosenPile = std::stoi(line.substr(7));
         if (chosenPile < 1 || chosenPile > 3) {
-            throw InvalidInputException("Remote pile choice out of range");
+            throw InvalidInputException("观众选择的牌堆超出范围");
         }
 
-        Utils::printColored("观众选择了牌堆 (Audience chose pile): ",
-                            Utils::COLOR_YELLOW);
+        Utils::printColored("观众选择了牌堆: ", Utils::COLOR_YELLOW);
         std::cout << chosenPile << "\n";
         reorganize(deck, piles, chosenPile);
         sendLine(client.fd, "ACK|ROUND|" + std::to_string(round));
@@ -142,23 +141,23 @@ void NetworkGame::runMagicianServer(int port) {
 
     std::string revealCard = deck[REVEAL_INDEX];
     sendLine(client.fd, "REVEAL|" + revealCard);
-    Utils::printTitle("网络揭晓 (Network Reveal)");
+    Utils::printTitle("网络揭晓");
     Utils::printStyled("观众记住的牌应该是: " + revealCard + "\n",
                        Utils::COLOR_GREEN, Utils::BOLD);
-    Utils::printColored("本局网络对战结束。(Network duel complete.)\n", Utils::COLOR_GREEN);
+    Utils::printColored("本局网络对战结束。\n", Utils::COLOR_GREEN);
 }
 
 void NetworkGame::runAudienceClient(const std::string& host, int port) {
     if (host.empty()) {
-        throw InvalidInputException("Host cannot be empty");
+        throw InvalidInputException("主机地址不能为空");
     }
     if (port < 1024 || port > 65535) {
-        throw InvalidInputException("Port must be between 1024 and 65535");
+        throw InvalidInputException("端口号必须在1024到65535之间");
     }
 
     SocketHandle client(socket(AF_INET, SOCK_STREAM, 0));
     if (!client.isValid()) {
-        throw MagicTrickException(socketError("Failed to create client socket"));
+        throw MagicTrickException(socketError("创建客户端套接字失败"));
     }
 
     sockaddr_in address;
@@ -167,23 +166,23 @@ void NetworkGame::runAudienceClient(const std::string& host, int port) {
     address.sin_port = htons(static_cast<uint16_t>(port));
 
     if (inet_pton(AF_INET, host.c_str(), &address.sin_addr) <= 0) {
-        throw InvalidInputException("Host must be an IPv4 address, for example 127.0.0.1");
+        throw InvalidInputException("主机地址必须是IPv4格式，例如127.0.0.1");
     }
 
     Utils::printColored("\n正在连接魔术师端...\n", Utils::COLOR_CYAN);
     if (connect(client.fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) < 0) {
-        throw MagicTrickException(socketError("Failed to connect to magician"));
+        throw MagicTrickException(socketError("连接魔术师端失败"));
     }
 
     std::string welcome = receiveLine(client.fd);
     if (welcome.find("WELCOME|") == 0) {
-        Utils::printColored("连接成功 (Connected): ", Utils::COLOR_GREEN);
+        Utils::printColored("连接成功: ", Utils::COLOR_GREEN);
         std::cout << welcome.substr(8) << "\n";
     }
 
     std::string deckLine = receiveLine(client.fd);
     if (deckLine.find("DECK|") != 0) {
-        throw InvalidGameStateException("Expected initial deck from magician");
+        throw InvalidGameStateException("未收到魔术师端发送的初始牌组");
     }
 
     std::cout << "\n请从这些牌中记住一张，但不要告诉魔术师：\n";
@@ -194,7 +193,7 @@ void NetworkGame::runAudienceClient(const std::string& host, int port) {
         int round = 0;
         auto piles = receivePiles(client.fd, round);
         if (round != expectedRound) {
-            throw InvalidGameStateException("Unexpected round number from magician");
+            throw InvalidGameStateException("魔术师端发送的轮次不正确");
         }
 
         Utils::printTitle("网络对战 - 第 " + std::to_string(round) + " 轮");
@@ -203,24 +202,24 @@ void NetworkGame::runAudienceClient(const std::string& host, int port) {
             std::cout << joinCards(piles[i]) << "\n";
         }
 
-        int choice = Utils::getIntInput("\n你的牌在哪一堆？(Which pile contains your card?): ", 1, 3);
+        int choice = Utils::getIntInput("\n你的牌在哪一堆？请选择: ", 1, 3);
         sendLine(client.fd, "CHOICE|" + std::to_string(choice));
 
         std::string ack = receiveLine(client.fd);
         if (ack.find("ACK|ROUND|") != 0) {
-            throw InvalidGameStateException("Expected round acknowledgment from magician");
+            throw InvalidGameStateException("未收到魔术师端的本轮确认");
         }
     }
 
     std::string revealLine = receiveLine(client.fd);
     if (revealLine.find("REVEAL|") != 0) {
-        throw InvalidGameStateException("Expected reveal from magician");
+        throw InvalidGameStateException("未收到魔术师端的揭晓结果");
     }
 
-    Utils::printTitle("网络揭晓 (Network Reveal)");
+    Utils::printTitle("网络揭晓");
     Utils::printStyled("魔术师猜你的牌是: " + revealLine.substr(7) + "\n",
                        Utils::COLOR_GREEN, Utils::BOLD);
-    Utils::confirm("魔术师猜对了吗？(Did the magician guess correctly?)");
+    Utils::confirm("魔术师猜对了吗？");
 }
 
 std::vector<std::string> NetworkGame::createDeck() {
@@ -299,7 +298,7 @@ void NetworkGame::sendLine(int socketFd, const std::string& line) {
     while (remaining > 0) {
         ssize_t sent = send(socketFd, data, remaining, 0);
         if (sent <= 0) {
-            throw MagicTrickException(socketError("Failed to send network data"));
+            throw MagicTrickException(socketError("发送网络数据失败"));
         }
         data += sent;
         remaining -= static_cast<size_t>(sent);
@@ -313,14 +312,14 @@ std::string NetworkGame::receiveLine(int socketFd) {
     while (true) {
         ssize_t received = recv(socketFd, &ch, 1, 0);
         if (received <= 0) {
-            throw MagicTrickException(socketError("Network connection closed"));
+            throw MagicTrickException(socketError("网络连接已关闭"));
         }
         if (ch == '\n') {
             break;
         }
         line.push_back(ch);
         if (line.size() > 4096) {
-            throw InvalidGameStateException("Network message is too large");
+            throw InvalidGameStateException("网络消息过长");
         }
     }
 
@@ -340,7 +339,7 @@ void NetworkGame::sendPiles(int socketFd,
 std::vector<std::vector<std::string>> NetworkGame::receivePiles(int socketFd, int& round) {
     std::string line = receiveLine(socketFd);
     if (line.find("ROUND|") != 0) {
-        throw InvalidGameStateException("Expected round message from magician");
+        throw InvalidGameStateException("未收到魔术师端发送的轮次消息");
     }
 
     round = std::stoi(line.substr(6));
@@ -351,18 +350,18 @@ std::vector<std::vector<std::string>> NetworkGame::receivePiles(int socketFd, in
             break;
         }
         if (line.find("PILE|") != 0) {
-            throw InvalidGameStateException("Expected pile message from magician");
+            throw InvalidGameStateException("未收到魔术师端发送的牌堆消息");
         }
 
         size_t firstSep = line.find('|');
         size_t secondSep = line.find('|', firstSep + 1);
         if (secondSep == std::string::npos) {
-            throw InvalidGameStateException("Malformed pile message");
+            throw InvalidGameStateException("牌堆消息格式错误");
         }
 
         int pileNumber = std::stoi(line.substr(firstSep + 1, secondSep - firstSep - 1));
         if (pileNumber < 1 || pileNumber > 3) {
-            throw InvalidGameStateException("Remote pile number out of range");
+            throw InvalidGameStateException("远端牌堆编号超出范围");
         }
         piles[pileNumber - 1] = splitCards(line.substr(secondSep + 1));
     }

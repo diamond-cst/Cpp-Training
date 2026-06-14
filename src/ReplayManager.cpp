@@ -24,11 +24,11 @@ void ReplayManager::start(const std::string& playerName,
     textFilename = directory + "/replay_" + safeTime + "_" + safePlayer + ".txt";
     htmlFilename = directory + "/replay_" + safeTime + "_" + safePlayer + ".html";
 
-    lines.push_back("21 Card Magic Trick Replay");
-    lines.push_back("玩家 (Player): " + playerName);
-    lines.push_back("魔术类型 (Trick): " + trickName);
-    lines.push_back("模式 (Mode): " + modeName);
-    lines.push_back("时间 (Time): " + Utils::getCurrentTimestamp());
+    lines.push_back("21张牌魔术回放");
+    lines.push_back("玩家: " + playerName);
+    lines.push_back("魔术类型: " + trickName);
+    lines.push_back("模式: " + modeName);
+    lines.push_back("时间: " + Utils::getCurrentTimestamp());
     lines.push_back("------------------------------------------------------------");
 }
 
@@ -42,11 +42,11 @@ void ReplayManager::recordRound(int round,
     }
 
     lines.push_back("");
-    lines.push_back("第 " + std::to_string(round) + " 轮 (Round " + std::to_string(round) + ")");
-    lines.push_back("牌堆 1 (Pile 1): " + pile1);
-    lines.push_back("牌堆 2 (Pile 2): " + pile2);
-    lines.push_back("牌堆 3 (Pile 3): " + pile3);
-    lines.push_back("选择牌堆 (Chosen pile): " + std::to_string(chosenPile));
+    lines.push_back("第 " + std::to_string(round) + " 轮");
+    lines.push_back("牌堆 1: " + pile1);
+    lines.push_back("牌堆 2: " + pile2);
+    lines.push_back("牌堆 3: " + pile3);
+    lines.push_back("选择牌堆: " + std::to_string(chosenPile));
 }
 
 void ReplayManager::recordReveal(const std::string& card, bool correct, int finalScore) {
@@ -55,9 +55,9 @@ void ReplayManager::recordReveal(const std::string& card, bool correct, int fina
     }
 
     lines.push_back("");
-    lines.push_back("揭示牌 (Revealed card): " + card);
-    lines.push_back(std::string("结果 (Result): ") + (correct ? "成功 (Correct)" : "失败 (Incorrect)"));
-    lines.push_back("最终分数 (Final score): " + std::to_string(finalScore));
+    lines.push_back("揭示牌: " + card);
+    lines.push_back(std::string("结果: ") + (correct ? "成功" : "失败"));
+    lines.push_back("最终分数: " + std::to_string(finalScore));
     lines.push_back("------------------------------------------------------------");
 }
 
@@ -68,7 +68,7 @@ void ReplayManager::save() const {
 
     std::ofstream file(textFilename);
     if (!file) {
-        throw FileIOException(textFilename, "open replay for writing");
+        throw FileIOException(textFilename, "写入回放记录");
     }
 
     for (const auto& line : lines) {
@@ -83,18 +83,18 @@ void ReplayManager::exportHtml() const {
 
     std::ofstream file(htmlFilename);
     if (!file) {
-        throw FileIOException(htmlFilename, "open replay html for writing");
+        throw FileIOException(htmlFilename, "写入HTML回放报告");
     }
 
     file << "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n";
     file << "<meta charset=\"utf-8\">\n";
-    file << "<title>21 Card Magic Trick Replay</title>\n";
+    file << "<title>21张牌魔术回放</title>\n";
     file << "<style>";
     file << "body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:32px;line-height:1.6;color:#17202a;background:#f7f9fb;}";
     file << "main{max-width:920px;margin:auto;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:28px;}";
     file << "h1{font-size:28px;margin:0 0 18px;}pre{white-space:pre-wrap;font-size:15px;background:#f2f5f8;border-radius:6px;padding:18px;}";
     file << "</style>\n</head>\n<body><main>\n";
-    file << "<h1>21 Card Magic Trick Replay</h1>\n<pre>";
+    file << "<h1>21张牌魔术回放</h1>\n<pre>";
     for (const auto& line : lines) {
         file << escapeHtml(line) << "\n";
     }
@@ -136,7 +136,7 @@ std::vector<std::string> ReplayManager::listReplayFiles(const std::string& dir) 
 void ReplayManager::displayReplayFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file) {
-        throw FileIOException(filename, "open replay for reading");
+        throw FileIOException(filename, "读取回放记录");
     }
 
     std::string line;
@@ -152,7 +152,7 @@ void ReplayManager::ensureDirectory() const {
     }
 
     if (mkdir(directory.c_str(), 0755) != 0) {
-        throw FileIOException(directory, "create replay directory");
+        throw FileIOException(directory, "创建回放目录");
     }
 }
 

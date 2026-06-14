@@ -39,7 +39,7 @@ std::string sanitizePlayerName(const std::string& name) {
         }
     }
     std::string value = result.str();
-    return value.empty() ? "Player" : value;
+    return value.empty() ? "player" : value;
 }
 
 std::string playerSaveFilename(const std::string& playerName) {
@@ -86,13 +86,11 @@ void updateLeaderboardRecord(const std::string& playerName, int finalScore, bool
                         Utils::getCurrentTimestamp());
     leaderboard.addOrUpdateRecord(record);
 
-    Utils::printColored("\n排行榜已更新！(Leaderboard updated!)\n", Utils::COLOR_GREEN);
+    Utils::printColored("\n排行榜已更新！\n", Utils::COLOR_GREEN);
 
     int rank = leaderboard.getPlayerRank(playerName);
     if (rank > 0 && rank <= 10) {
         Utils::printStyled("你的排名: 第 " + std::to_string(rank) + " 名！\n",
-                         Utils::COLOR_YELLOW, Utils::BOLD);
-        Utils::printStyled("Your rank: #" + std::to_string(rank) + "!\n",
                          Utils::COLOR_YELLOW, Utils::BOLD);
     }
 }
@@ -101,29 +99,28 @@ void updateLeaderboardRecord(const std::string& playerName, int finalScore, bool
 void displayMainMenu() {
     Utils::clearScreen();
     Utils::printTitle("21张牌魔术 - 主菜单");
-    Utils::printTitle("21 Card Trick - Main Menu");
     std::cout << "\n";
 
     Utils::printColored("1. ", Utils::COLOR_CYAN);
-    std::cout << "开始新游戏 (Start New Game)\n";
+    std::cout << "开始新游戏\n";
 
     Utils::printColored("2. ", Utils::COLOR_CYAN);
-    std::cout << "加载游戏 (Load Game)\n";
+    std::cout << "加载游戏\n";
 
     Utils::printColored("3. ", Utils::COLOR_CYAN);
-    std::cout << "查看排行榜 (View Leaderboard)\n";
+    std::cout << "查看排行榜\n";
 
     Utils::printColored("4. ", Utils::COLOR_CYAN);
-    std::cout << "游戏说明 (Instructions)\n";
+    std::cout << "游戏说明\n";
 
     Utils::printColored("5. ", Utils::COLOR_CYAN);
-    std::cout << "查看回放记录 (View Replays)\n";
+    std::cout << "查看回放记录\n";
 
     Utils::printColored("6. ", Utils::COLOR_CYAN);
-    std::cout << "网络双人对战 (Network Duel)\n";
+    std::cout << "网络双人对战\n";
 
     Utils::printColored("7. ", Utils::COLOR_CYAN);
-    std::cout << "退出 (Exit)\n";
+    std::cout << "退出\n";
 
     std::cout << "\n";
 }
@@ -131,35 +128,35 @@ void displayMainMenu() {
 // 选择魔术类型 (Select trick type)
 int selectTrickType() {
     Utils::clearScreen();
-    Utils::printTitle("选择魔术类型 (Select Trick Type)");
+    Utils::printTitle("选择魔术类型");
     std::cout << "\n";
 
     Utils::printColored("1. ", Utils::COLOR_GREEN);
-    std::cout << "21张牌魔术 (21 Card Trick) - 经典版\n";
+    std::cout << "21张牌魔术 - 经典版\n";
     std::cout << "   3堆 × 7张，3轮后揭示第11张\n\n";
 
     Utils::printColored("2. ", Utils::COLOR_YELLOW);
-    std::cout << "27张牌魔术 (27 Card Trick) - 进阶版\n";
+    std::cout << "27张牌魔术 - 进阶版\n";
     std::cout << "   3堆 × 9张，3轮后揭示第14张\n\n";
 
     Utils::printColored("3. ", Utils::COLOR_MAGENTA);
-    std::cout << "可配置牌数魔术 (Configurable Trick) - 高级版\n";
+    std::cout << "可配置牌数魔术 - 高级版\n";
     std::cout << "   支持15/21/27张牌，自动计算揭示位置\n\n";
 
-    return Utils::getIntInput("请选择 (Choose): ", 1, 3);
+    return Utils::getIntInput("请选择: ", 1, 3);
 }
 
 int selectDeckSize() {
     Utils::clearScreen();
-    Utils::printTitle("配置牌数 (Configure Deck Size)");
+    Utils::printTitle("配置牌数");
     Utils::printColored("1. ", Utils::COLOR_GREEN);
-    std::cout << "15张牌 (15 cards)\n";
+    std::cout << "15张牌\n";
     Utils::printColored("2. ", Utils::COLOR_CYAN);
-    std::cout << "21张牌 (21 cards)\n";
+    std::cout << "21张牌\n";
     Utils::printColored("3. ", Utils::COLOR_YELLOW);
-    std::cout << "27张牌 (27 cards)\n\n";
+    std::cout << "27张牌\n\n";
 
-    int choice = Utils::getIntInput("请选择 (Choose): ", 1, 3);
+    int choice = Utils::getIntInput("请选择: ", 1, 3);
     if (choice == 1) return 15;
     if (choice == 2) return 21;
     return 27;
@@ -167,19 +164,23 @@ int selectDeckSize() {
 
 GameSettings collectGameSettings() {
     GameSettings settings;
-    settings.useColor = Utils::confirm("是否使用彩色显示？(Use colors?)");
-    settings.useAnimation = Utils::confirm("是否启用动画效果？(Enable animation effects?)");
-    settings.soundEnabled = Utils::confirm("是否启用终端提示音？(Enable terminal sound?)");
-    settings.replayEnabled = Utils::confirm("是否记录本局回放？(Record replay?)");
-    settings.hideFaces = Utils::confirm("是否隐藏牌面显示？(Hide card faces?)");
-    settings.numericCards = Utils::confirm("是否使用数字牌？否则使用标准扑克牌。(Use numeric cards?)");
+    settings.useColor = true;
+    settings.useAnimation = true;
+    settings.soundEnabled = true;
+    settings.replayEnabled = true;
 
-    std::cout << "\n选择游戏模式 (Select game mode):\n";
+    Utils::printColored("\n已默认开启：彩色显示、动画效果、终端提示音和回放记录。\n",
+                        Utils::COLOR_GREEN);
+
+    settings.hideFaces = Utils::confirm("是否隐藏牌面显示？");
+    settings.numericCards = Utils::confirm("是否使用数字牌？否则使用标准扑克牌。");
+
+    std::cout << "\n选择游戏模式:\n";
     Utils::printColored("1. ", Utils::COLOR_GREEN);
-    std::cout << "观众互动模式 (Audience Mode) - 猜对+10，猜错-5\n";
+    std::cout << "观众互动模式 - 猜对+10，猜错-5\n";
     Utils::printColored("2. ", Utils::COLOR_YELLOW);
-    std::cout << "魔术师练习模式 (Magician Practice) - 根据完成时间评分，含练习提示\n";
-    settings.magicianMode = (Utils::getIntInput("请选择 (Choose): ", 1, 2) == 2);
+    std::cout << "魔术师练习模式 - 根据完成时间评分，含练习提示\n";
+    settings.magicianMode = (Utils::getIntInput("请选择: ", 1, 2) == 2);
 
     return settings;
 }
@@ -190,9 +191,9 @@ void startNewGame() {
         Utils::clearScreen();
 
         // 获取玩家名称 (Get player name)
-        std::string playerName = Utils::getInput("请输入你的名字 (Enter your name): ");
+        std::string playerName = Utils::getInput("请输入你的名字: ");
         if (playerName.empty()) {
-            playerName = "Player";
+            playerName = "玩家";
         }
 
         GameSettings settings = collectGameSettings();
@@ -219,8 +220,8 @@ void startNewGame() {
         ReplayManager replayManager("replays");
         if (settings.replayEnabled) {
             std::string modeName = settings.magicianMode
-                ? "魔术师练习 (Magician Practice)"
-                : "观众互动 (Audience)";
+                ? "魔术师练习"
+                : "观众互动";
             replayManager.start(playerName, trick->getName(), modeName);
             attachReplayManager(trick.get(), &replayManager);
         }
@@ -243,15 +244,15 @@ void startNewGame() {
         if (settings.replayEnabled) {
             replayManager.save();
             replayManager.exportHtml();
-            Utils::printColored("\n回放已保存 (Replay saved): " + replayManager.getTextFilename() + "\n",
+            Utils::printColored("\n回放已保存: " + replayManager.getTextFilename() + "\n",
                                 Utils::COLOR_GREEN);
-            Utils::printColored("HTML报告已导出 (HTML report exported): " + replayManager.getHtmlFilename() + "\n",
+            Utils::printColored("HTML报告已导出: " + replayManager.getHtmlFilename() + "\n",
                                 Utils::COLOR_GREEN);
         }
 
         // 询问是否保存 (Ask to save)
         std::cout << "\n";
-        if (Utils::confirm("是否保存游戏？(Save game?)")) {
+        if (Utils::confirm("是否保存游戏？")) {
             std::string filename = playerSaveFilename(playerName);
             trick->saveState(filename);
             Utils::printColored("游戏已保存到玩家存档: " + filename + "\n", Utils::COLOR_GREEN);
@@ -260,19 +261,19 @@ void startNewGame() {
         Utils::pressAnyKey();
 
     } catch (const MagicTrickException& e) {
-        Utils::printColored("\n错误 (Error): ", Utils::COLOR_RED);
+        Utils::printColored("\n错误: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     } catch (const std::bad_alloc& e) {
-        Utils::printColored("\n内存分配失败 (Memory allocation failed): ", Utils::COLOR_RED);
+        Utils::printColored("\n内存分配失败: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     } catch (const std::ios_base::failure& e) {
-        Utils::printColored("\n文件流错误 (File stream error): ", Utils::COLOR_RED);
+        Utils::printColored("\n文件流错误: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     } catch (const std::exception& e) {
-        Utils::printColored("\n未知错误 (Unknown error): ", Utils::COLOR_RED);
+        Utils::printColored("\n未知错误: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     }
@@ -282,15 +283,15 @@ void startNewGame() {
 void loadGame() {
     try {
         Utils::clearScreen();
-        Utils::printTitle("加载游戏 (Load Game)");
+        Utils::printTitle("加载游戏");
 
-        std::string playerName = Utils::getInput("\n输入玩家名读取存档 (Enter player name): ");
+        std::string playerName = Utils::getInput("\n输入玩家名读取存档: ");
         if (playerName.empty()) {
-            playerName = "Player";
+            playerName = "玩家";
         }
         std::string filename = playerSaveFilename(playerName);
         if (!std::ifstream(filename)) {
-            throw FileIOException(filename, "open for reading");
+            throw FileIOException(filename, "读取存档");
         }
 
         // 尝试加载不同类型的存档 (Try loading different trick saves)
@@ -308,18 +309,18 @@ void loadGame() {
             }
         }
 
-        Utils::printColored("\n游戏已加载！(Game loaded!)\n", Utils::COLOR_GREEN);
-        Utils::printColored("玩家 (Player): ", Utils::COLOR_CYAN);
+        Utils::printColored("\n游戏已加载！\n", Utils::COLOR_GREEN);
+        Utils::printColored("玩家: ", Utils::COLOR_CYAN);
         std::cout << trick->getPlayerName() << "\n";
-        Utils::printColored("魔术类型 (Trick type): ", Utils::COLOR_CYAN);
+        Utils::printColored("魔术类型: ", Utils::COLOR_CYAN);
         std::cout << trick->getName() << "\n";
-        Utils::printColored("当前轮数 (Current round): ", Utils::COLOR_CYAN);
+        Utils::printColored("当前轮数: ", Utils::COLOR_CYAN);
         std::cout << trick->getCurrentRound() << "\n";
 
         Utils::pressAnyKey();
 
         ReplayManager replayManager("replays");
-        replayManager.start(trick->getPlayerName(), trick->getName(), "加载继续 (Loaded Game)");
+        replayManager.start(trick->getPlayerName(), trick->getName(), "加载继续");
         attachReplayManager(trick.get(), &replayManager);
 
         // 继续游戏 (Continue game)
@@ -335,27 +336,27 @@ void loadGame() {
                                 hasFinalResult(trick.get()));
         replayManager.save();
         replayManager.exportHtml();
-        Utils::printColored("\n继续游戏回放已保存 (Replay saved): " + replayManager.getTextFilename() + "\n",
+        Utils::printColored("\n继续游戏回放已保存: " + replayManager.getTextFilename() + "\n",
                             Utils::COLOR_GREEN);
 
         Utils::pressAnyKey();
 
     } catch (const FileIOException& e) {
-        Utils::printColored("\n文件错误 (File error): ", Utils::COLOR_RED);
+        Utils::printColored("\n文件错误: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
-        Utils::printColored("存档不存在或已损坏。(Save file doesn't exist or is corrupted.)\n",
+        Utils::printColored("存档不存在或已损坏。\n",
                           Utils::COLOR_YELLOW);
         Utils::pressAnyKey();
     } catch (const MagicTrickException& e) {
-        Utils::printColored("\n错误 (Error): ", Utils::COLOR_RED);
+        Utils::printColored("\n错误: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     } catch (const std::bad_alloc& e) {
-        Utils::printColored("\n内存分配失败 (Memory allocation failed): ", Utils::COLOR_RED);
+        Utils::printColored("\n内存分配失败: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     } catch (const std::ios_base::failure& e) {
-        Utils::printColored("\n文件流错误 (File stream error): ", Utils::COLOR_RED);
+        Utils::printColored("\n文件流错误: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     }
@@ -372,11 +373,11 @@ void viewLeaderboard() {
 void viewReplays() {
     try {
         Utils::clearScreen();
-        Utils::printTitle("回放记录 (Replay Records)");
+        Utils::printTitle("回放记录");
 
         auto files = ReplayManager::listReplayFiles("replays");
         if (files.empty()) {
-            Utils::printColored("\n暂无回放记录。(No replay records.)\n", Utils::COLOR_YELLOW);
+            Utils::printColored("\n暂无回放记录。\n", Utils::COLOR_YELLOW);
             Utils::pressAnyKey();
             return;
         }
@@ -387,13 +388,13 @@ void viewReplays() {
             std::cout << files[i] << "\n";
         }
 
-        int choice = Utils::getIntInput("\n请选择要查看的回放 (Choose replay): ", 1, maxDisplay);
+        int choice = Utils::getIntInput("\n请选择要查看的回放: ", 1, maxDisplay);
         Utils::clearScreen();
-        Utils::printTitle("回放内容 (Replay Content)");
+        Utils::printTitle("回放内容");
         ReplayManager::displayReplayFile(files[choice - 1]);
         Utils::pressAnyKey();
     } catch (const MagicTrickException& e) {
-        Utils::printColored("\n回放读取失败 (Replay read failed): ", Utils::COLOR_RED);
+        Utils::printColored("\n回放读取失败: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     }
@@ -403,30 +404,30 @@ void viewReplays() {
 void startNetworkDuel() {
     try {
         Utils::clearScreen();
-        Utils::printTitle("网络双人对战 (Network Duel)");
+        Utils::printTitle("网络双人对战");
 
         Utils::printColored("1. ", Utils::COLOR_GREEN);
         std::cout << "魔术师端：创建房间并等待观众连接\n";
         Utils::printColored("2. ", Utils::COLOR_YELLOW);
         std::cout << "观众端：连接魔术师房间\n\n";
 
-        int role = Utils::getIntInput("请选择角色 (Choose role): ", 1, 2);
-        int port = Utils::getIntInput("请输入端口 1024-65535 (Port): ", 1024, 65535);
+        int role = Utils::getIntInput("请选择角色: ", 1, 2);
+        int port = Utils::getIntInput("请输入端口 1024-65535: ", 1024, 65535);
 
         if (role == 1) {
             NetworkGame::runMagicianServer(port);
         } else {
-            std::string host = Utils::getInput("请输入魔术师IP，例如127.0.0.1 (Host IP): ");
+            std::string host = Utils::getInput("请输入魔术师IP，例如127.0.0.1: ");
             NetworkGame::runAudienceClient(host, port);
         }
 
         Utils::pressAnyKey();
     } catch (const MagicTrickException& e) {
-        Utils::printColored("\n网络对战错误 (Network duel error): ", Utils::COLOR_RED);
+        Utils::printColored("\n网络对战错误: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     } catch (const std::exception& e) {
-        Utils::printColored("\n网络对战未知错误 (Unknown network error): ", Utils::COLOR_RED);
+        Utils::printColored("\n网络对战未知错误: ", Utils::COLOR_RED);
         std::cerr << e.what() << "\n";
         Utils::pressAnyKey();
     }
@@ -435,7 +436,7 @@ void startNetworkDuel() {
 // 显示游戏说明 (Display instructions)
 void showInstructions() {
     Utils::clearScreen();
-    Utils::printTitle("游戏说明 (Instructions)");
+    Utils::printTitle("游戏说明");
     std::cout << "\n";
 
     Utils::printStyled("21张牌魔术原理：\n", Utils::COLOR_CYAN, Utils::BOLD);
@@ -485,7 +486,6 @@ void showInstructions() {
 // 主函数 (Main function)
 int main() {
     Utils::printStyled("\n正在启动21张牌魔术...\n", Utils::COLOR_CYAN, Utils::BOLD);
-    Utils::printStyled("Starting 21 Card Trick...\n\n", Utils::COLOR_CYAN, Utils::BOLD);
     Utils::sleep(1000);
 
     bool running = true;
@@ -493,7 +493,7 @@ int main() {
     while (running) {
         displayMainMenu();
 
-        int choice = Utils::getIntInput("请选择 (Choose): ", 1, 7);
+        int choice = Utils::getIntInput("请选择: ", 1, 7);
 
         switch (choice) {
             case 1:
@@ -523,13 +523,11 @@ int main() {
             case 7:
                 Utils::clearScreen();
                 Utils::printStyled("\n感谢游玩！再见！\n", Utils::COLOR_GREEN, Utils::BOLD);
-                Utils::printStyled("Thanks for playing! Goodbye!\n\n", Utils::COLOR_GREEN, Utils::BOLD);
                 running = false;
                 break;
 
             default:
                 Utils::printColored("\n无效选择！请重试。\n", Utils::COLOR_RED);
-                Utils::printColored("Invalid choice! Please try again.\n", Utils::COLOR_RED);
                 Utils::pressAnyKey();
                 break;
         }

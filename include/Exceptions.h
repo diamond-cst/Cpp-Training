@@ -22,36 +22,36 @@ public:
 class InvalidCardException : public MagicTrickException {
 public:
     explicit InvalidCardException(const std::string& msg)
-        : MagicTrickException("Invalid Card: " + msg) {}
+        : MagicTrickException("无效卡牌: " + msg) {}
 };
 
 // 越界异常 (Out of bounds exception)
 class OutOfBoundsException : public MagicTrickException {
 public:
     explicit OutOfBoundsException(int index, int size)
-        : MagicTrickException("Index " + std::to_string(index) +
-                            " out of bounds [0, " + std::to_string(size - 1) + "]") {}
+        : MagicTrickException("索引 " + std::to_string(index) +
+                            " 超出范围 [0, " + std::to_string(size - 1) + "]") {}
 };
 
 // 文件IO异常 (File I/O exception)
 class FileIOException : public MagicTrickException {
 public:
     explicit FileIOException(const std::string& filename, const std::string& operation)
-        : MagicTrickException("File I/O error: " + operation + " on " + filename) {}
+        : MagicTrickException("文件读写错误: " + operation + "，文件: " + filename) {}
 };
 
 // 无效游戏状态异常 (Invalid game state exception)
 class InvalidGameStateException : public MagicTrickException {
 public:
     explicit InvalidGameStateException(const std::string& msg)
-        : MagicTrickException("Invalid Game State: " + msg) {}
+        : MagicTrickException("无效游戏状态: " + msg) {}
 };
 
 // 无效输入异常 (Invalid input exception)
 class InvalidInputException : public MagicTrickException {
 public:
     explicit InvalidInputException(const std::string& msg)
-        : MagicTrickException("Invalid Input: " + msg) {}
+        : MagicTrickException("无效输入: " + msg) {}
 };
 
 #endif // EXCEPTIONS_H

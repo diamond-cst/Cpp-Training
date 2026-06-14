@@ -141,17 +141,54 @@ void Utils::playBeep(int count, int delayMs) {
     }
 }
 
+void Utils::playDealSound() {
+#ifdef __APPLE__
+    int result = std::system("afplay -t 0.035 /System/Library/Sounds/Tink.aiff >/dev/null 2>&1");
+    if (result != 0) {
+        std::cout << '\a' << std::flush;
+    }
+#else
+    std::cout << '\a' << std::flush;
+#endif
+}
+
+void Utils::playRevealSound() {
+#ifdef __APPLE__
+    int result = std::system("afplay -t 0.18 /System/Library/Sounds/Glass.aiff >/dev/null 2>&1");
+    if (result != 0) {
+        std::cout << '\a' << std::flush;
+    }
+#else
+    std::cout << '\a' << std::flush;
+#endif
+}
+
+void Utils::playResultSound(bool success) {
+#ifdef __APPLE__
+    const char* sound = success
+        ? "/System/Library/Sounds/Glass.aiff"
+        : "/System/Library/Sounds/Basso.aiff";
+    std::string command = std::string("afplay -t 0.16 ") + sound + " >/dev/null 2>&1";
+    int result = std::system(command.c_str());
+    if (result != 0) {
+        std::cout << '\a' << std::flush;
+    }
+#else
+    std::cout << '\a' << std::flush;
+#endif
+}
+
 void Utils::waitForResume() {
-    printStyled("\n游戏已暂停 (Paused)\n", COLOR_YELLOW, BOLD);
-    std::cout << "输入 R 恢复游戏。(Enter R to resume.)\n";
+    printStyled("\n游戏已暂停\n", COLOR_YELLOW, BOLD);
+    std::cout << "输入 R 恢复游戏。\n";
 
     std::string token;
     while (true) {
-        std::cout << "暂停中 (Paused)> ";
+        std::cout << "暂停中> ";
         std::cin >> token;
         if (std::cin.fail()) {
             if (std::cin.eof()) {
-                throw InvalidInputException("Input stream closed during pause");
+                throw InvalidInputException("暂停期间输入已结束");
             }
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -159,10 +196,10 @@ void Utils::waitForResume() {
         }
         if (token == "R" || token == "r") {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            printColored("游戏继续！(Resumed!)\n", COLOR_GREEN);
+            printColored("游戏继续！\n", COLOR_GREEN);
             return;
         }
-        printColored("请输入 R 恢复。(Please enter R to resume.)\n", COLOR_RED);
+        printColored("请输入 R 恢复。\n", COLOR_RED);
     }
 }
 
@@ -187,15 +224,14 @@ int Utils::getIntInput(const std::string& prompt, int min, int max) {
 
         if (std::cin.fail()) {
             if (std::cin.eof()) {
-                throw InvalidInputException("Input stream closed while reading an integer");
+                throw InvalidInputException("读取数字时输入已结束");
             }
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            printColored("无效输入！请输入数字。(Invalid input! Please enter a number.)\n", COLOR_RED);
+            printColored("无效输入！请输入数字。\n", COLOR_RED);
         } else if (value < min || value > max) {
-            printColored("输入超出范围！(Input out of range!)\n", COLOR_RED);
+            printColored("输入超出范围！\n", COLOR_RED);
             std::cout << "请输入 " << min << " 到 " << max << " 之间的数字。\n";
-            std::cout << "Please enter a number between " << min << " and " << max << ".\n";
         } else {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             return value;
@@ -205,12 +241,12 @@ int Utils::getIntInput(const std::string& prompt, int min, int max) {
 
 // 确认提示 (Confirmation prompt)
 bool Utils::confirm(const std::string& message) {
-    std::cout << message << " (y/n): ";
+    std::cout << message << "（输入 y/n）: ";
     char response;
     std::cin >> response;
     if (std::cin.fail()) {
         if (std::cin.eof()) {
-            throw InvalidInputException("Input stream closed while reading confirmation");
+            throw InvalidInputException("读取确认选项时输入已结束");
         }
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
