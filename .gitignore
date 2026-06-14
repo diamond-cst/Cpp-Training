@@ -1,0 +1,65 @@
+# 编译输出 (Compiled output)
+*.o
+*.obj
+*.exe
+*.out
+*.app
+magic_trick_console
+magic_trick_gui
+magic_trick_enhanced
+test_program
+
+# 构建目录 (Build directories)
+build/
+cmake-build-*/
+.cmake/
+
+# IDE文件 (IDE files)
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 存档文件 (Save files)
+saves/*.dat
+leaderboard.dat
+replays/
+
+# 临时文件 (Temporary files)
+*.tmp
+*.log
+*.bak
+
+# 本地配置 (Local configuration)
+application.yml
+
+# CMake生成文件 (CMake generated files)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile.cmake
+
+# Qt生成文件 (Qt generated files)
+*.pro.user
+*.autosave
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+
+# 依赖文件 (Dependency files)
+*.d
+
+# 调试文件 (Debug files)
+*.dSYM/
+*.pdb
+*.ilk
+
+# 文档生成 (Generated documentation)
+docs/html/
+docs/latex/
+
+# 资源文件（如果太大）(Large asset files)
+# assets/sounds/*.wav
+# assets/images/*.png
