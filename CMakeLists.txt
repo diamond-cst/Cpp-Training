@@ -11,6 +11,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # 源文件 (Source files)
 set(SOURCES
     src/Card.cpp
+    src/ThreePileCardTrick.cpp
     src/TwentyOneCardTrick.cpp
     src/TwentySevenCardTrick.cpp
     src/ConfigurableCardTrick.cpp
@@ -21,13 +22,13 @@ set(SOURCES
     src/Leaderboard.cpp
 )
 
-# 控制台版本 (Console version)
+# 控制台版本已合并到增强版 (Console version merged into enhanced version)
 option(BUILD_CONSOLE "Build console version" ON)
 
 if(BUILD_CONSOLE)
     add_executable(magic_trick_console
         ${SOURCES}
-        src/main_console.cpp
+        src/main_enhanced.cpp
     )
 
     # 设置输出目录 (Set output directory)

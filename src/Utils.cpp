@@ -143,7 +143,7 @@ void Utils::playBeep(int count, int delayMs) {
 
 void Utils::playDealSound() {
 #ifdef __APPLE__
-    int result = std::system("afplay -t 0.035 /System/Library/Sounds/Tink.aiff >/dev/null 2>&1");
+    int result = std::system("afplay -t 0.035 /System/Library/Sounds/Tink.aiff >/dev/null 2>&1 &");
     if (result != 0) {
         std::cout << '\a' << std::flush;
     }

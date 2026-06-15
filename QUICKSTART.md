@@ -1,96 +1,77 @@
-# 快速开始指南 (Quick Start Guide)
+# 快速开始指南
 
-## 21张牌魔术项目
-
-### 5分钟快速上手
-
-#### 1. 编译项目
+## 1. 编译
 
 ```bash
-# 进入项目目录
 cd /Users/diamond/Desktop/Cpp_traning
-
-# 编译控制台版本
-make console
-
-# 或使用g++直接编译
-g++ -std=c++14 -I./include -o magic_trick_console \
-    src/Card.cpp src/TwentyOneCardTrick.cpp src/main_console.cpp
+make enhanced
 ```
 
-#### 2. 运行测试
+`make console` 仍可使用，但现在只是兼容入口，实际等同于增强版。
+
+## 2. 运行
 
 ```bash
-# 编译测试程序
-g++ -std=c++14 -I./include -o test_program \
-    src/Card.cpp src/TwentyOneCardTrick.cpp src/test_main.cpp
+./magic_trick_enhanced
+```
 
-# 运行测试
+或：
+
+```bash
+make run
+```
+
+## 3. 测试
+
+```bash
+make test
 ./test_program
 ```
 
-#### 3. 运行主程序
+## 4. Qt GUI
 
 ```bash
-./magic_trick_console
+make gui
 ```
 
-### 项目结构一览
+如果提示找不到 Qt，可先安装 Qt 并把 `qmake` 加入 `PATH`。
 
+## 5. 双人魔术模式
+
+开两个终端运行 `./magic_trick_enhanced`。
+
+魔术师端选择：
+
+```text
+6 网络双人对战
+1 我是魔术师
+房间端口直接回车
 ```
-Cpp_traning/
-├── include/          # 头文件（5个核心类）
-├── src/              # 源文件（3个实现 + 2个主程序）
-├── saves/            # 游戏存档
-├── docs/             # 项目文档
-├── Makefile          # 编译配置
-└── README.md         # 项目说明
+
+观众端选择：
+
+```text
+6 网络双人对战
+2 我是观众
+魔术师地址直接回车
+房间端口直接回车
 ```
 
-### 核心类说明
+默认本机地址为 `127.0.0.1`，默认端口为 `5000`。如果端口占用，两端输入同一个新端口即可。
 
-1. **Card** - 卡牌类
-   - 支持标准扑克牌（♠♥♣♦）
-   - 完整的运算符重载
-
-2. **Deck<T>** - 牌堆模板类
-   - 动态内存管理
-   - 支持合并、复制等操作
-
-3. **TwentyOneCardTrick** - 21张牌魔术
-   - 完整的魔术算法
-   - 保存/加载功能
-
-### 常用命令
+## 常用命令
 
 ```bash
-# 编译
+make enhanced
 make console
-
-# 运行
+make test
 make run
-
-# 清理
+make run-test
+make gui
 make clean
-
-# 查看帮助
 make help
 ```
 
-### 下一步
+## 项目状态
 
-1. 查看 `README.md` 了解详细信息
-2. 查看 `docs/SUMMARY.md` 了解项目状态
-3. 查看 `docs/PROGRESS.md` 了解开发计划
-
-### 需要帮助？
-
-- 查看代码注释（中英文双语）
-- 运行测试程序验证功能
-- 阅读项目文档
-
----
-
-**项目状态**: Phase 1 完成 ✅
-**测试状态**: 所有测试通过 ✅
-**编译状态**: 无错误无警告 ✅
+核心控制台增强版、Qt GUI、保存加载、排行榜、回放、音效和网络双人模式均已实现。答辩推荐使用 `magic_trick_enhanced` 作为主入口。

@@ -2,6 +2,7 @@
 #define THREEPILECARDTRICK_H
 
 #include "MagicTrick.h"
+#include "PileChoice.h"
 #include <string>
 
 // 三堆发牌类魔术的公共父类
@@ -14,6 +15,8 @@ protected:
     Deck<Card> pile1;
     Deck<Card> pile2;
     Deck<Card> pile3;
+    Card practiceTargetCard;
+    bool hasPracticeTarget;
 
     std::string saveType;
     bool configurableSave;
@@ -45,12 +48,19 @@ protected:
     virtual int roundPauseMs() const;
     virtual bool shouldShowPracticeHint() const;
     virtual std::string failureMessage() const;
+    virtual PileChoice requestAudienceChoice(int roundNumber);
+    virtual bool confirmAudienceReveal(const Card& revealedCard);
 
     void initializeCards();
     void dealIntoPiles();
     void reorganizePiles(int chosenPile);
     void displayPiles() const;
-    int getUserChoice();
+    PileChoice getUserChoice();
+    PileChoice getPracticeChoice(int audiencePile);
+    int findPracticeTargetPile() const;
+    bool isPracticeTargetAtRevealIndex() const;
+    int getPracticeRevealIndex() const;
+    void displayNumberedDeck() const;
     void clearPiles();
     std::string pileToString(const Deck<Card>& pile) const;
     std::string displayCard(const Card& card) const;

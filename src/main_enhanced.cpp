@@ -179,7 +179,7 @@ GameSettings collectGameSettings() {
     Utils::printColored("1. ", Utils::COLOR_GREEN);
     std::cout << "观众互动模式 - 猜对+10，猜错-5\n";
     Utils::printColored("2. ", Utils::COLOR_YELLOW);
-    std::cout << "魔术师练习模式 - 根据完成时间评分，含练习提示\n";
+    std::cout << "魔术师练习模式 - 模拟观众选择，最后手动揭牌\n";
     settings.magicianMode = (Utils::getIntInput("请选择: ", 1, 2) == 2);
 
     return settings;
@@ -232,6 +232,14 @@ void startNewGame() {
         // 执行三轮 (Perform three rounds)
         while (!trick->isComplete()) {
             trick->performRound();
+            if (trick->shouldSaveAndExit()) {
+                std::string filename = playerSaveFilename(playerName);
+                trick->saveState(filename);
+                Utils::printColored("游戏进度已保存到玩家存档: " + filename + "\n",
+                                    Utils::COLOR_GREEN);
+                Utils::pressAnyKey();
+                return;
+            }
         }
 
         // 揭示结果 (Reveal result)
@@ -308,6 +316,8 @@ void loadGame() {
                 trick->loadState(filename);
             }
         }
+        trick->setUseAnimation(true);
+        trick->setSoundEnabled(true);
 
         Utils::printColored("\n游戏已加载！\n", Utils::COLOR_GREEN);
         Utils::printColored("玩家: ", Utils::COLOR_CYAN);
@@ -326,6 +336,14 @@ void loadGame() {
         // 继续游戏 (Continue game)
         while (!trick->isComplete()) {
             trick->performRound();
+            if (trick->shouldSaveAndExit()) {
+                std::string filename = playerSaveFilename(trick->getPlayerName());
+                trick->saveState(filename);
+                Utils::printColored("游戏进度已保存到玩家存档: " + filename + "\n",
+                                    Utils::COLOR_GREEN);
+                Utils::pressAnyKey();
+                return;
+            }
         }
 
         // 揭示结果 (Reveal result)
@@ -400,24 +418,59 @@ void viewReplays() {
     }
 }
 
+int getNetworkPortInput(const std::string& prompt, int defaultPort) {
+    while (true) {
+        std::string input = Utils::getInput(prompt);
+        if (input.empty()) {
+            return defaultPort;
+        }
+
+        std::istringstream iss(input);
+        int port = 0;
+        char extra = '\0';
+        if ((iss >> port) && !(iss >> extra) && port >= 1024 && port <= 65535) {
+            return port;
+        }
+
+        Utils::printColored("端口必须是 1024 到 65535 之间的数字。\n", Utils::COLOR_RED);
+    }
+}
+
+std::string getNetworkHostInput(const std::string& prompt, const std::string& defaultHost) {
+    std::string host = Utils::getInput(prompt);
+    return host.empty() ? defaultHost : host;
+}
+
 // 网络双人对战 (Network two-player duel)
 void startNetworkDuel() {
     try {
+        const int defaultPort = 5000;
+        const std::string defaultHost = "127.0.0.1";
+
         Utils::clearScreen();
-        Utils::printTitle("网络双人对战");
+        Utils::printTitle("双人魔术模式");
 
         Utils::printColored("1. ", Utils::COLOR_GREEN);
-        std::cout << "魔术师端：创建房间并等待观众连接\n";
+        std::cout << "我是魔术师：创建房间并等待观众\n";
         Utils::printColored("2. ", Utils::COLOR_YELLOW);
-        std::cout << "观众端：连接魔术师房间\n\n";
+        std::cout << "我是观众：进入魔术师房间\n\n";
 
         int role = Utils::getIntInput("请选择角色: ", 1, 2);
-        int port = Utils::getIntInput("请输入端口 1024-65535: ", 1024, 65535);
 
         if (role == 1) {
+            int port = getNetworkPortInput("房间端口（回车默认 " +
+                                           std::to_string(defaultPort) + "）: ",
+                                           defaultPort);
+            Utils::printColored("\n请让观众进入本机 127.0.0.1，房间端口 " +
+                                std::to_string(port) + "。\n",
+                                Utils::COLOR_CYAN);
             NetworkGame::runMagicianServer(port);
         } else {
-            std::string host = Utils::getInput("请输入魔术师IP，例如127.0.0.1: ");
+            std::string host = getNetworkHostInput("魔术师地址（回车默认本机）: ",
+                                                   defaultHost);
+            int port = getNetworkPortInput("房间端口（回车默认 " +
+                                           std::to_string(defaultPort) + "）: ",
+                                           defaultPort);
             NetworkGame::runAudienceClient(host, port);
         }
 
@@ -455,7 +508,8 @@ void showInstructions() {
 
     Utils::printStyled("计分规则：\n", Utils::COLOR_GREEN, Utils::BOLD);
     std::cout << "• 观众模式猜对：+10分\n";
-    std::cout << "• 魔术师练习模式猜对：按完成时间评分\n";
+    std::cout << "• 魔术师练习模式：系统模拟观众选堆，最后由魔术师选择揭晓牌\n";
+    std::cout << "• 练习模式评分会综合用时和错误次数\n";
     std::cout << "• 猜错：-5分\n";
     std::cout << "• 排行榜记录前10名玩家\n\n";
 

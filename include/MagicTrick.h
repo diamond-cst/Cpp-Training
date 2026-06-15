@@ -24,6 +24,8 @@ protected:
     bool numericCards;           // 是否使用数字牌 (Use numeric cards)
     bool lastGuessCorrect;       // 最近一次揭示是否正确 (Last reveal correct)
     bool hasRevealResult;        // 是否已有揭示结果 (Has reveal result)
+    bool saveAndExitRequested;   // 是否请求保存并退出
+    int practiceMistakes;        // 练习模式错误次数
     int elapsedSeconds;          // 本局用时 (Elapsed seconds)
     std::chrono::steady_clock::time_point startTime;
     ReplayManager* replayManager;// 回放管理器 (Replay manager)
@@ -32,7 +34,8 @@ protected:
         : workingDeck(initialDeckCapacity), currentRound(0), rememberedCard(),
           playerName("玩家"), score(0), useColors(colors), useAnimation(false),
           magicianMode(false), soundEnabled(false), hideFaces(false), numericCards(false),
-          lastGuessCorrect(false), hasRevealResult(false), elapsedSeconds(0),
+          lastGuessCorrect(false), hasRevealResult(false), saveAndExitRequested(false),
+          practiceMistakes(0), elapsedSeconds(0),
           startTime(std::chrono::steady_clock::now()), replayManager(nullptr) {}
 
 public:
@@ -80,6 +83,8 @@ public:
     virtual void setReplayManager(ReplayManager* manager) { replayManager = manager; }
     virtual bool wasLastGuessCorrect() const { return lastGuessCorrect; }
     virtual bool hasResult() const { return hasRevealResult; }
+    virtual bool shouldSaveAndExit() const { return saveAndExitRequested; }
+    virtual void clearSaveAndExitRequest() { saveAndExitRequested = false; }
     virtual int getElapsedSeconds() const { return elapsedSeconds; }
 };
 

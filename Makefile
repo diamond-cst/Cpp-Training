@@ -36,13 +36,11 @@ GUI_TARGET = magic_trick_gui
 .PHONY: all
 all: enhanced
 
-# 控制台版本 (Console version)
+# 控制台版本已合并到增强版 (Console version merged into enhanced version)
 .PHONY: console
-console: $(CONSOLE_TARGET)
-
-$(CONSOLE_TARGET): $(OBJECTS) $(BUILD_DIR)/main_console.o
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
-	@echo "控制台版本编译完成！"
+console: enhanced
+	@cp $(ENHANCED_TARGET) $(CONSOLE_TARGET)
+	@echo "控制台入口已合并到增强版，已生成兼容可执行文件: $(CONSOLE_TARGET)"
 
 # 增强版本 (Enhanced version)
 .PHONY: enhanced
@@ -95,7 +93,7 @@ clean:
 run: enhanced
 	./$(ENHANCED_TARGET)
 
-# 运行控制台版本 (Run console version)
+# 运行控制台版本（兼容入口，实际运行增强版）(Run console version compatibility entry)
 .PHONY: run-console
 run-console: console
 	./$(CONSOLE_TARGET)
@@ -122,12 +120,12 @@ release: clean console
 help:
 	@echo "可用目标:"
 	@echo "  make all         - 编译默认版本（增强版）"
-	@echo "  make console     - 编译控制台版本"
+	@echo "  make console     - 编译控制台兼容入口（等同增强版）"
 	@echo "  make enhanced    - 编译增强版本（推荐）"
 	@echo "  make test        - 编译测试程序"
 	@echo "  make gui         - 编译Qt GUI版本"
 	@echo "  make run         - 编译并运行增强版本"
-	@echo "  make run-console - 编译并运行控制台版本"
+	@echo "  make run-console - 编译并运行控制台兼容入口"
 	@echo "  make run-test    - 编译并运行测试程序"
 	@echo "  make debug       - 编译调试版本"
 	@echo "  make release     - 编译发布版本"

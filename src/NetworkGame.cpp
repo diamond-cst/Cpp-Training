@@ -1,14 +1,13 @@
 #include "NetworkGame.h"
 #include "Exceptions.h"
+#include "TwentyOneCardTrick.h"
 #include "Utils.h"
-#include <algorithm>
 #include <arpa/inet.h>
 #include <cerrno>
 #include <cctype>
 #include <cstring>
 #include <iostream>
 #include <netinet/in.h>
-#include <random>
 #include <sstream>
 #include <stdexcept>
 #include <sys/socket.h>
@@ -16,12 +15,120 @@
 
 namespace {
 const int BACKLOG = 1;
-const int REVEAL_INDEX = 10;
 
 std::string socketError(const std::string& action) {
     return action + ": " + std::strerror(errno);
 }
+
+void displayAudienceInitialState(const std::vector<std::string>& deck) {
+    Utils::clearScreen();
+    Utils::printTitle("21张牌魔术");
+    Utils::printColored("玩家: ", Utils::COLOR_CYAN);
+    std::cout << "远程观众\n";
+    Utils::printColored("模式: ", Utils::COLOR_CYAN);
+    std::cout << "观众互动\n\n";
+
+    Utils::printColored("这是21张牌:\n", Utils::COLOR_GREEN);
+    for (size_t i = 0; i < deck.size(); ++i) {
+        std::cout << deck[i] << " ";
+        if ((i + 1) % 7 == 0) {
+            std::cout << "\n";
+        }
+    }
+
+    Utils::printColored("\n请在心中记住其中一张牌，但不要告诉魔术师！\n",
+                        Utils::COLOR_YELLOW);
 }
+
+void displayAudiencePiles(int round, const std::vector<std::vector<std::string>>& piles) {
+    const int dealDelayMs = 35;
+
+    Utils::clearScreen();
+    Utils::printSeparator('=', 60);
+    Utils::printStyled("  第 " + std::to_string(round) + " 轮\n",
+                       Utils::COLOR_YELLOW, Utils::BOLD);
+    Utils::printSeparator('=', 60);
+
+    Utils::printColored("\n正在发牌，请观察每张牌的位置...\n\n",
+                        Utils::COLOR_YELLOW);
+    for (size_t i = 0; i < piles.size(); ++i) {
+        Utils::printColored("牌堆 " + std::to_string(i + 1) + ":  ", Utils::COLOR_CYAN);
+        for (const auto& card : piles[i]) {
+            std::cout << card << " " << std::flush;
+            Utils::playDealSound();
+            Utils::sleep(dealDelayMs);
+        }
+        std::cout << "\n";
+    }
+}
+}
+
+class NetworkMagicianTrick : public TwentyOneCardTrick {
+private:
+    int clientFd;
+
+    std::vector<std::vector<std::string>> currentPilesAsText() const {
+        std::vector<std::vector<std::string>> piles(3);
+        const Deck<Card>* sourcePiles[] = {&pile1, &pile2, &pile3};
+        for (int pileIndex = 0; pileIndex < 3; ++pileIndex) {
+            for (int i = 0; i < sourcePiles[pileIndex]->getSize(); ++i) {
+                piles[pileIndex].push_back(sourcePiles[pileIndex]->getCard(i).toString(useColors));
+            }
+        }
+        return piles;
+    }
+
+    std::string workingDeckToString() const {
+        std::vector<std::string> cards;
+        for (int i = 0; i < workingDeck.getSize(); ++i) {
+            cards.push_back(workingDeck.getCard(i).toString(useColors));
+        }
+        return NetworkGame::joinCards(cards);
+    }
+
+protected:
+    PileChoice requestAudienceChoice(int roundNumber) override {
+        NetworkGame::sendPiles(clientFd, roundNumber, currentPilesAsText());
+        Utils::printColored("\n等待观众选择牌堆...\n",
+                            Utils::COLOR_CYAN);
+
+        std::string line = NetworkGame::receiveLine(clientFd);
+        if (line.find("CHOICE|") != 0) {
+            throw InvalidGameStateException("收到异常网络消息: " + line);
+        }
+
+        int chosenPile = std::stoi(line.substr(7));
+        if (chosenPile < 1 || chosenPile > 3) {
+            throw InvalidInputException("观众选择的牌堆超出范围");
+        }
+
+        Utils::printColored("观众选择了第 " + std::to_string(chosenPile) + " 堆。\n",
+                            Utils::COLOR_YELLOW);
+        NetworkGame::sendLine(clientFd, "ACK|ROUND|" + std::to_string(roundNumber));
+        return PileChoice(chosenPile);
+    }
+
+    bool confirmAudienceReveal(const Card& revealedCard) override {
+        NetworkGame::sendLine(clientFd, "REVEAL|" + revealedCard.toString(useColors));
+
+        std::string line = NetworkGame::receiveLine(clientFd);
+        if (line.find("CONFIRM|") != 0) {
+            throw InvalidGameStateException("未收到观众端的揭晓确认");
+        }
+
+        char result = line.size() > 8 ? line[8] : 'N';
+        return result == 'Y' || result == 'y';
+    }
+
+public:
+    explicit NetworkMagicianTrick(int socketFd)
+        : TwentyOneCardTrick(true), clientFd(socketFd) {}
+
+    void initialize() override {
+        TwentyOneCardTrick::initialize();
+        NetworkGame::sendLine(clientFd, "DECK|" + workingDeckToString());
+    }
+};
 
 NetworkGame::SocketHandle::SocketHandle() : fd(-1) {}
 
@@ -88,9 +195,11 @@ void NetworkGame::runMagicianServer(int port) {
         throw MagicTrickException(socketError("监听服务器端口失败"));
     }
 
-    Utils::printColored("\n魔术师端已启动，等待观众连接...\n", Utils::COLOR_GREEN);
-    Utils::printColored("当前监听端口: " + std::to_string(port) + "\n",
-                        Utils::COLOR_GREEN);
+    Utils::clearScreen();
+    Utils::printTitle("21张牌魔术");
+    Utils::printColored("\n等待观众进入房间...\n", Utils::COLOR_GREEN);
+    Utils::printColored("房间端口: " + std::to_string(port) + "\n",
+                        Utils::COLOR_CYAN);
 
     sockaddr_in clientAddress;
     socklen_t clientLength = sizeof(clientAddress);
@@ -101,50 +210,24 @@ void NetworkGame::runMagicianServer(int port) {
 
     char clientIp[INET_ADDRSTRLEN] = {0};
     inet_ntop(AF_INET, &clientAddress.sin_addr, clientIp, sizeof(clientIp));
-    Utils::printColored("观众已连接: ", Utils::COLOR_CYAN);
+    Utils::printColored("观众已加入，游戏即将开始。\n", Utils::COLOR_GREEN);
+    Utils::printColored("连接来源: ", Utils::COLOR_CYAN);
     std::cout << clientIp << "\n";
 
     sendLine(client.fd, "WELCOME|21张牌网络对战");
 
-    std::vector<std::string> deck = createDeck();
-    shuffleDeck(deck);
+    NetworkMagicianTrick trick(client.fd);
+    trick.setPlayerName("网络魔术师");
+    trick.setUseAnimation(true);
+    trick.setSoundEnabled(true);
+    trick.initialize();
 
-    std::cout << "\n请让观众从收到的21张牌中记住一张。\n";
-    sendLine(client.fd, "DECK|" + joinCards(deck));
-
-    for (int round = 1; round <= 3; ++round) {
-        auto piles = dealIntoPiles(deck);
-        sendPiles(client.fd, round, piles);
-
-        Utils::printTitle("网络对战 - 第 " + std::to_string(round) + " 轮");
-        for (int i = 0; i < 3; ++i) {
-            Utils::printColored("牌堆 " + std::to_string(i + 1) + ": ", Utils::COLOR_CYAN);
-            std::cout << joinCards(piles[i]) << "\n";
-        }
-        std::cout << "等待观众选择牌堆...\n";
-
-        std::string line = receiveLine(client.fd);
-        if (line.find("CHOICE|") != 0) {
-            throw InvalidGameStateException("收到异常网络消息: " + line);
-        }
-
-        int chosenPile = std::stoi(line.substr(7));
-        if (chosenPile < 1 || chosenPile > 3) {
-            throw InvalidInputException("观众选择的牌堆超出范围");
-        }
-
-        Utils::printColored("观众选择了牌堆: ", Utils::COLOR_YELLOW);
-        std::cout << chosenPile << "\n";
-        reorganize(deck, piles, chosenPile);
-        sendLine(client.fd, "ACK|ROUND|" + std::to_string(round));
+    while (!trick.isComplete()) {
+        trick.performRound();
     }
 
-    std::string revealCard = deck[REVEAL_INDEX];
-    sendLine(client.fd, "REVEAL|" + revealCard);
-    Utils::printTitle("网络揭晓");
-    Utils::printStyled("观众记住的牌应该是: " + revealCard + "\n",
-                       Utils::COLOR_GREEN, Utils::BOLD);
-    Utils::printColored("本局网络对战结束。\n", Utils::COLOR_GREEN);
+    trick.reveal();
+    Utils::printColored("本局双人魔术结束。\n", Utils::COLOR_GREEN);
 }
 
 void NetworkGame::runAudienceClient(const std::string& host, int port) {
@@ -169,15 +252,14 @@ void NetworkGame::runAudienceClient(const std::string& host, int port) {
         throw InvalidInputException("主机地址必须是IPv4格式，例如127.0.0.1");
     }
 
-    Utils::printColored("\n正在连接魔术师端...\n", Utils::COLOR_CYAN);
+    Utils::printColored("\n正在进入魔术师房间...\n", Utils::COLOR_CYAN);
     if (connect(client.fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) < 0) {
         throw MagicTrickException(socketError("连接魔术师端失败"));
     }
 
     std::string welcome = receiveLine(client.fd);
     if (welcome.find("WELCOME|") == 0) {
-        Utils::printColored("连接成功: ", Utils::COLOR_GREEN);
-        std::cout << welcome.substr(8) << "\n";
+        Utils::printColored("已进入房间，等待魔术师发牌...\n", Utils::COLOR_GREEN);
     }
 
     std::string deckLine = receiveLine(client.fd);
@@ -185,8 +267,7 @@ void NetworkGame::runAudienceClient(const std::string& host, int port) {
         throw InvalidGameStateException("未收到魔术师端发送的初始牌组");
     }
 
-    std::cout << "\n请从这些牌中记住一张，但不要告诉魔术师：\n";
-    std::cout << deckLine.substr(5) << "\n";
+    displayAudienceInitialState(splitCards(deckLine.substr(5)));
     Utils::pressAnyKey();
 
     for (int expectedRound = 1; expectedRound <= 3; ++expectedRound) {
@@ -196,13 +277,9 @@ void NetworkGame::runAudienceClient(const std::string& host, int port) {
             throw InvalidGameStateException("魔术师端发送的轮次不正确");
         }
 
-        Utils::printTitle("网络对战 - 第 " + std::to_string(round) + " 轮");
-        for (int i = 0; i < 3; ++i) {
-            Utils::printColored("牌堆 " + std::to_string(i + 1) + ": ", Utils::COLOR_CYAN);
-            std::cout << joinCards(piles[i]) << "\n";
-        }
+        displayAudiencePiles(round, piles);
 
-        int choice = Utils::getIntInput("\n你的牌在哪一堆？请选择: ", 1, 3);
+        int choice = Utils::getIntInput("\n你记住的牌在哪一堆？请选择: ", 1, 3);
         sendLine(client.fd, "CHOICE|" + std::to_string(choice));
 
         std::string ack = receiveLine(client.fd);
@@ -216,57 +293,15 @@ void NetworkGame::runAudienceClient(const std::string& host, int port) {
         throw InvalidGameStateException("未收到魔术师端的揭晓结果");
     }
 
-    Utils::printTitle("网络揭晓");
-    Utils::printStyled("魔术师猜你的牌是: " + revealLine.substr(7) + "\n",
+    Utils::clearScreen();
+    Utils::printTitle("揭晓时刻！");
+    Utils::printColored("魔术师认为你记住的牌是第11张牌...\n",
+                        Utils::COLOR_YELLOW);
+    std::cout << "\n";
+    Utils::printStyled("它是: " + revealLine.substr(7) + "\n",
                        Utils::COLOR_GREEN, Utils::BOLD);
-    Utils::confirm("魔术师猜对了吗？");
-}
-
-std::vector<std::string> NetworkGame::createDeck() {
-    const std::string suits[] = {"H", "D", "C"};
-    const std::string ranks[] = {"A", "2", "3", "4", "5", "6", "7"};
-
-    std::vector<std::string> deck;
-    for (const auto& suit : suits) {
-        for (const auto& rank : ranks) {
-            deck.push_back("[" + rank + suit + "]");
-        }
-    }
-    return deck;
-}
-
-void NetworkGame::shuffleDeck(std::vector<std::string>& deck) {
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::shuffle(deck.begin(), deck.end(), rng);
-}
-
-std::vector<std::vector<std::string>> NetworkGame::dealIntoPiles(const std::vector<std::string>& deck) {
-    std::vector<std::vector<std::string>> piles(3);
-    for (size_t i = 0; i < deck.size(); ++i) {
-        piles[i % 3].push_back(deck[i]);
-    }
-    return piles;
-}
-
-void NetworkGame::reorganize(std::vector<std::string>& deck,
-                             const std::vector<std::vector<std::string>>& piles,
-                             int chosenPile) {
-    int order[3] = {0, 1, 2};
-    if (chosenPile == 1) {
-        order[0] = 1;
-        order[1] = 0;
-        order[2] = 2;
-    } else if (chosenPile == 3) {
-        order[0] = 0;
-        order[1] = 2;
-        order[2] = 1;
-    }
-
-    deck.clear();
-    for (int idx : order) {
-        deck.insert(deck.end(), piles[idx].begin(), piles[idx].end());
-    }
+    bool correct = Utils::confirm("魔术师猜对了吗？");
+    sendLine(client.fd, std::string("CONFIRM|") + (correct ? "Y" : "N"));
 }
 
 std::string NetworkGame::joinCards(const std::vector<std::string>& cards) {
