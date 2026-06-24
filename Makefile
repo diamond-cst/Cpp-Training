@@ -54,7 +54,7 @@ $(ENHANCED_TARGET): $(OBJECTS) $(BUILD_DIR)/main_enhanced.o
 .PHONY: test
 test: $(TEST_TARGET)
 
-$(TEST_TARGET): $(BUILD_DIR)/Card.o $(BUILD_DIR)/ThreePileCardTrick.o $(BUILD_DIR)/TwentyOneCardTrick.o $(BUILD_DIR)/Utils.o $(BUILD_DIR)/PileChoice.o $(BUILD_DIR)/ReplayManager.o $(BUILD_DIR)/test_main.o
+$(TEST_TARGET): $(BUILD_DIR)/Card.o $(BUILD_DIR)/ThreePileCardTrick.o $(BUILD_DIR)/TwentyOneCardTrick.o $(BUILD_DIR)/TwentySevenCardTrick.o $(BUILD_DIR)/ConfigurableCardTrick.o $(BUILD_DIR)/Utils.o $(BUILD_DIR)/PileChoice.o $(BUILD_DIR)/ReplayManager.o $(BUILD_DIR)/test_main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 	@echo "测试程序编译完成！"
 

@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/assets">
+        <file alias="felt_table.png">assets/felt_table.png</file>
+        <file alias="wood_frame.png">assets/wood_frame.png</file>
+        <file alias="card_back.png">assets/card_back.png</file>
+        <file alias="gold_panel.png">assets/gold_panel.png</file>
+    </qresource>
+</RCC>

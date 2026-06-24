@@ -1,9 +1,12 @@
 #include "Card.h"
 #include "Deck.h"
+#include "ConfigurableCardTrick.h"
 #include "TwentyOneCardTrick.h"
 #include "Exceptions.h"
 #include <iostream>
 #include <cassert>
+#include <string>
+#include <vector>
 
 // 测试Card类 (Test Card class)
 void testCard() {
@@ -110,6 +113,49 @@ void testMagicTrick() {
     std::cout << "  魔术类测试通过！\n\n";
 }
 
+int findPileContainingCard(const std::vector<std::vector<std::string>>& piles,
+                           const std::string& card) {
+    for (int pileIndex = 0; pileIndex < static_cast<int>(piles.size()); ++pileIndex) {
+        for (const auto& value : piles[pileIndex]) {
+            if (value == card) {
+                return pileIndex + 1;
+            }
+        }
+    }
+    return 0;
+}
+
+void testGuiStateMachine() {
+    std::cout << "测试GUI状态机接口...\n";
+
+    TwentyOneCardTrick trick(false);
+    trick.setPlayerName("GUI测试玩家");
+    trick.initializeForGui();
+    std::string target = trick.getWorkingDeckCardsForGui(true).front();
+
+    for (int round = 0; round < 3; ++round) {
+        trick.dealCurrentRoundForGui();
+        auto piles = trick.getCurrentPilesForGui(true);
+        int pile = findPileContainingCard(piles, target);
+        assert(pile >= 1 && pile <= 3);
+        trick.applyPileChoiceForGui(pile);
+    }
+
+    assert(trick.isComplete());
+    assert(trick.getWorkingDeckCardsForGui(true)[trick.getRevealIndexForGui()] == target);
+    bool correct = trick.finalizeRevealForGui(trick.getRevealIndexForGui(), true);
+    assert(correct);
+    assert(trick.hasResult());
+    assert(trick.getScore() == 10);
+
+    ConfigurableCardTrick configurable(27, false, false, false);
+    configurable.initializeForGui();
+    assert(configurable.getDeckSize() == 27);
+    assert(configurable.getRevealIndexForGui() == 13);
+
+    std::cout << "  GUI状态机接口测试通过！\n\n";
+}
+
 // 测试保存/加载 (Test save/load)
 void testSaveLoad() {
     std::cout << "测试保存/加载功能...\n";
@@ -149,6 +195,7 @@ int main() {
         testDeck();
         testExceptions();
         testMagicTrick();
+        testGuiStateMachine();
         testSaveLoad();
 
         std::cout << "========================================\n";

@@ -5,52 +5,52 @@
 #include <iostream>
 #include <iomanip>
 
-// PlayerRecord构造函数 (PlayerRecord constructors)
+// PlayerRecord构造函数
 PlayerRecord::PlayerRecord()
     : name(""), score(0), gamesPlayed(0), correctGuesses(0), streak(0), timestamp("") {}
 
 PlayerRecord::PlayerRecord(const std::string& n, int s, int gp, int cg, int st, const std::string& ts)
     : name(n), score(s), gamesPlayed(gp), correctGuesses(cg), streak(st), timestamp(ts) {}
 
-// 比较运算符（按分数降序）(Comparison operators - descending by score)
+// 比较运算符（按分数降序）
 bool PlayerRecord::operator<(const PlayerRecord& other) const {
     if (score != other.score) {
-        return score > other.score; // 分数高的排前面 (Higher score first)
+        return score > other.score; // 分数高的排前面
     }
-    return streak > other.streak; // 分数相同时，连胜多的排前面 (Same score, higher streak first)
+    return streak > other.streak; // 分数相同时，连胜多的排前面
 }
 
 bool PlayerRecord::operator>(const PlayerRecord& other) const {
     return other < *this;
 }
 
-// Leaderboard构造函数 (Leaderboard constructor)
+// Leaderboard构造函数
 Leaderboard::Leaderboard(const std::string& file) : filename(file) {
     load();
 }
 
-// 析构函数 (Destructor)
+// 析构函数
 Leaderboard::~Leaderboard() {
     save();
 }
 
-// 添加或更新玩家记录 (Add or update player record)
+// 添加或更新玩家记录
 void Leaderboard::addOrUpdateRecord(const PlayerRecord& record) {
-    // 查找是否已存在该玩家 (Check if player already exists)
+    // 查找是否已存在该玩家
     auto it = std::find_if(records.begin(), records.end(),
                           [&record](const PlayerRecord& r) {
                               return r.name == record.name;
                           });
 
     if (it != records.end()) {
-        // 更新现有记录 (Update existing record)
+        // 更新现有记录
         it->score += record.score;
         it->gamesPlayed += record.gamesPlayed;
         it->correctGuesses += record.correctGuesses;
         it->streak = record.streak;
         it->timestamp = record.timestamp;
     } else {
-        // 添加新记录 (Add new record)
+        // 添加新记录
         records.push_back(record);
     }
 
@@ -58,26 +58,31 @@ void Leaderboard::addOrUpdateRecord(const PlayerRecord& record) {
     trimRecords();
 }
 
-// 获取排行榜 (Get leaderboard)
+// 获取排行榜，返回前count名玩家记录
 std::vector<PlayerRecord> Leaderboard::getTopRecords(int count) const {
+    // 获取实际排行榜数量
     int actualCount = std::min(count, static_cast<int>(records.size()));
+    // 返回实际排行榜数量
     return std::vector<PlayerRecord>(records.begin(), records.begin() + actualCount);
 }
 
-// 获取玩家记录 (Get player record)
+// 获取玩家记录
 PlayerRecord* Leaderboard::getPlayerRecord(const std::string& playerName) {
+    // 查找玩家记录
     auto it = std::find_if(records.begin(), records.end(),
                           [&playerName](const PlayerRecord& r) {
                               return r.name == playerName;
                           });
 
+    // 如果找到玩家记录，返回玩家记录指针
     if (it != records.end()) {
         return &(*it);
     }
+    // 如果未找到玩家记录，返回空指针
     return nullptr;
 }
 
-// 显示排行榜 (Display leaderboard)
+// 显示排行榜
 void Leaderboard::display() const {
     std::cout << "\n";
     std::cout << "╔════════════════════════════════════════════════════════════════╗\n";
@@ -89,8 +94,11 @@ void Leaderboard::display() const {
     if (records.empty()) {
         std::cout << "║                         暂无记录                              ║\n";
     } else {
+        // 遍历排行榜前MAX_RECORDS名玩家记录
         for (size_t i = 0; i < records.size() && i < MAX_RECORDS; ++i) {
+            // 获取当前玩家记录
             const auto& record = records[i];
+            // 打印玩家排名、玩家名称、分数、游戏次数、正确次数、连胜次数
             std::cout << "║ " << std::setw(4) << (i + 1) << " │ "
                      << std::setw(15) << std::left << record.name.substr(0, 15) << std::right << " │ "
                      << std::setw(5) << record.score << " │ "
@@ -103,7 +111,7 @@ void Leaderboard::display() const {
     std::cout << "╚════════════════════════════════════════════════════════════════╝\n";
 }
 
-// 显示带颜色的排行榜 (Display colored leaderboard)
+// 显示带颜色的排行榜
 void Leaderboard::displayColored() const {
     std::cout << "\n";
     Utils::printStyled("╔════════════════════════════════════════════════════════════════╗\n",
@@ -119,15 +127,17 @@ void Leaderboard::displayColored() const {
     if (records.empty()) {
         std::cout << "║                         暂无记录                              ║\n";
     } else {
+        // 遍历排行榜前MAX_RECORDS名玩家记录
         for (size_t i = 0; i < records.size() && i < MAX_RECORDS; ++i) {
             const auto& record = records[i];
 
-            // 根据排名选择颜色 (Choose color based on rank)
+            // 根据排名选择颜色
             std::string color = Utils::COLOR_WHITE;
-            if (i == 0) color = Utils::COLOR_YELLOW;      // 金色 (Gold)
-            else if (i == 1) color = Utils::COLOR_CYAN;   // 银色 (Silver)
-            else if (i == 2) color = Utils::COLOR_GREEN;  // 铜色 (Bronze)
+            if (i == 0) color = Utils::COLOR_YELLOW;      // 金色
+            else if (i == 1) color = Utils::COLOR_CYAN;   // 银色
+            else if (i == 2) color = Utils::COLOR_GREEN;  // 铜色
 
+            // 打印玩家排名、玩家名称、分数、游戏次数、正确次数、连胜次数
             std::cout << "║ ";
             Utils::printColored(std::to_string(i + 1), color);
             std::cout << std::string(4 - std::to_string(i + 1).length(), ' ') << " │ "
@@ -143,7 +153,7 @@ void Leaderboard::displayColored() const {
                       Utils::COLOR_CYAN, Utils::BOLD);
 }
 
-// 保存到文件 (Save to file)
+// 保存到文件
 void Leaderboard::save() const {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {

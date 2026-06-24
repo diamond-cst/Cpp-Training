@@ -2,30 +2,30 @@
 #include "Exceptions.h"
 #include <sstream>
 
-// 构造函数：数字牌 (Constructor for numeric cards)
+// 构造函数：数字牌
 Card::Card(int value) : suit(Suit::NONE), rank(Rank::NUMERIC), numericValue(value) {
     if (value < 1) {
         throw InvalidCardException("数字牌的数值必须至少为1");
     }
 }
 
-// 构造函数：标准扑克牌 (Constructor for standard playing cards)
+// 构造函数：标准扑克牌
 Card::Card(Suit s, Rank r) : suit(s), rank(r), numericValue(0) {
     if (s == Suit::NONE || r == Rank::NUMERIC) {
         throw InvalidCardException("标准扑克牌的花色或点数无效");
     }
-    // 计算数字值用于比较 (Calculate numeric value for comparison)
+    // 计算数字值用于比较
     numericValue = static_cast<int>(r);
 }
 
-// 默认构造函数 (Default constructor)
+// 默认构造函数
 Card::Card() : suit(Suit::NONE), rank(Rank::NUMERIC), numericValue(0) {}
 
-// 拷贝构造函数 (Copy constructor)
+// 拷贝构造函数
 Card::Card(const Card& other)
     : suit(other.suit), rank(other.rank), numericValue(other.numericValue) {}
 
-// 赋值运算符 (Assignment operator)
+// 赋值运算符
 Card& Card::operator=(const Card& other) {
     if (this != &other) {
         suit = other.suit;
@@ -35,27 +35,27 @@ Card& Card::operator=(const Card& other) {
     return *this;
 }
 
-// 获取数字值 (Get numeric value)
+// 获取数字值
 int Card::getValue() const {
     return numericValue;
 }
 
-// 获取花色 (Get suit)
+// 获取花色
 Card::Suit Card::getSuit() const {
     return suit;
 }
 
-// 获取点数 (Get rank)
+// 获取点数
 Card::Rank Card::getRank() const {
     return rank;
 }
 
-// 是否为数字牌 (Check if numeric card)
+// 是否为数字牌
 bool Card::isNumeric() const {
     return rank == Rank::NUMERIC;
 }
 
-// 获取花色符号 (Get suit symbol)
+// 获取花色符号
 std::string Card::getSuitSymbol() const {
     switch (suit) {
         case Suit::HEARTS:   return "♥";
@@ -67,7 +67,7 @@ std::string Card::getSuitSymbol() const {
     }
 }
 
-// 获取点数字符串 (Get rank string)
+// 获取点数字符串
 std::string Card::getRankString() const {
     if (rank == Rank::NUMERIC) {
         return std::to_string(numericValue);
@@ -82,20 +82,20 @@ std::string Card::getRankString() const {
     }
 }
 
-// 获取颜色代码 (Get ANSI color code)
+// 获取颜色代码
 std::string Card::getColorCode() const {
-    // 红色花色：红桃和方块 (Red suits: hearts and diamonds)
+    // 红色花色：红桃和方块
     if (suit == Suit::HEARTS || suit == Suit::DIAMONDS) {
-        return "\033[31m"; // 红色 (Red)
+        return "\033[31m"; // 红色
     }
-    // 黑色花色：梅花和黑桃 (Black suits: clubs and spades)
+    // 黑色花色：梅花和黑桃
     else if (suit == Suit::CLUBS || suit == Suit::SPADES) {
-        return "\033[30m"; // 黑色 (Black)
+        return "\033[30m"; // 黑色
     }
-    return "\033[0m"; // 默认颜色 (Default color)
+    return "\033[0m"; // 默认颜色
 }
 
-// 转换为字符串 (Convert to string)
+// 转换为字符串
 std::string Card::toString(bool useColor) const {
     std::ostringstream oss;
 
@@ -110,13 +110,13 @@ std::string Card::toString(bool useColor) const {
     }
 
     if (useColor) {
-        oss << "\033[0m"; // 重置颜色 (Reset color)
+        oss << "\033[0m"; // 重置颜色
     }
 
     return oss.str();
 }
 
-// 比较运算符：相等 (Equality operator)
+// 比较运算符：相等
 bool Card::operator==(const Card& other) const {
     if (isNumeric() && other.isNumeric()) {
         return numericValue == other.numericValue;
@@ -124,38 +124,38 @@ bool Card::operator==(const Card& other) const {
     return suit == other.suit && rank == other.rank;
 }
 
-// 比较运算符：不等 (Inequality operator)
+// 比较运算符：不等
 bool Card::operator!=(const Card& other) const {
     return !(*this == other);
 }
 
-// 比较运算符：小于 (Less than operator)
+// 比较运算符：小于
 bool Card::operator<(const Card& other) const {
     return numericValue < other.numericValue;
 }
 
-// 比较运算符：大于 (Greater than operator)
+// 比较运算符：大于
 bool Card::operator>(const Card& other) const {
     return numericValue > other.numericValue;
 }
 
-// 比较运算符：小于等于 (Less than or equal operator)
+// 比较运算符：小于等于
 bool Card::operator<=(const Card& other) const {
     return numericValue <= other.numericValue;
 }
 
-// 比较运算符：大于等于 (Greater than or equal operator)
+// 比较运算符：大于等于
 bool Card::operator>=(const Card& other) const {
     return numericValue >= other.numericValue;
 }
 
-// 输出流运算符 (Output stream operator)
+// 输出流运算符
 std::ostream& operator<<(std::ostream& os, const Card& card) {
     os << card.toString(false);
     return os;
 }
 
-// 输入流运算符 (Input stream operator)
+// 输入流运算符
 std::istream& operator>>(std::istream& is, Card& card) {
     int value;
     is >> value;

@@ -15,5 +15,6 @@ int TwentySevenCardTrick::practiceBaseScore() const {
 }
 
 int TwentySevenCardTrick::roundPauseMs() const {
+    // 一千毫秒
     return 1000;
 }

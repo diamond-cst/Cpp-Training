@@ -10,6 +10,12 @@ ConfigurableCardTrick::ConfigurableCardTrick(int cards, bool colors, bool animat
 }
 
 void ConfigurableCardTrick::configure(int cards) {
+    // 检查 cards 是否合法
+    // 更新 deckSize
+    // 更新 pileSize
+    // 更新 revealIndex
+    // 重建 workingDeck
+    // 重建 pile1、pile2、pile3
     configureDeck(cards);
 }
 

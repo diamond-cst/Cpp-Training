@@ -8,27 +8,27 @@
 
 class ReplayManager;
 
-// 魔术抽象基类 (Abstract base class for magic tricks)
+// 魔术抽象基类
 class MagicTrick {
 protected:
-    Deck<Card> workingDeck;      // 工作牌堆 (Working deck)
-    int currentRound;            // 当前轮数 (Current round)
-    Card rememberedCard;         // 观众记住的牌 (Remembered card)
-    std::string playerName;      // 玩家名称 (Player name)
-    int score;                   // 分数 (Score)
-    bool useColors;              // 是否使用颜色 (Use colors)
-    bool useAnimation;           // 是否使用动画 (Use animation)
-    bool magicianMode;           // 魔术师练习模式 (Magician practice mode)
-    bool soundEnabled;           // 是否启用提示音 (Sound enabled)
-    bool hideFaces;              // 是否隐藏牌面 (Hide card faces)
-    bool numericCards;           // 是否使用数字牌 (Use numeric cards)
-    bool lastGuessCorrect;       // 最近一次揭示是否正确 (Last reveal correct)
-    bool hasRevealResult;        // 是否已有揭示结果 (Has reveal result)
+    Deck<Card> workingDeck;      // 工作牌堆
+    int currentRound;            // 当前轮数
+    Card rememberedCard;         // 观众记住的牌
+    std::string playerName;      // 玩家名称
+    int score;                   // 分数
+    bool useColors;              // 是否使用颜色
+    bool useAnimation;           // 是否使用动画
+    bool magicianMode;           // 魔术师练习模式
+    bool soundEnabled;           // 是否启用提示音
+    bool hideFaces;              // 是否隐藏牌面
+    bool numericCards;           // 是否使用数字牌
+    bool lastGuessCorrect;       // 最近一次揭示是否正确
+    bool hasRevealResult;        // 是否已有揭示结果
     bool saveAndExitRequested;   // 是否请求保存并退出
     int practiceMistakes;        // 练习模式错误次数
-    int elapsedSeconds;          // 本局用时 (Elapsed seconds)
+    int elapsedSeconds;          // 本局用时
     std::chrono::steady_clock::time_point startTime;
-    ReplayManager* replayManager;// 回放管理器 (Replay manager)
+    ReplayManager* replayManager;// 回放管理器
 
     explicit MagicTrick(int initialDeckCapacity = 52, bool colors = false)
         : workingDeck(initialDeckCapacity), currentRound(0), rememberedCard(),
@@ -86,6 +86,9 @@ public:
     virtual bool shouldSaveAndExit() const { return saveAndExitRequested; }
     virtual void clearSaveAndExitRequest() { saveAndExitRequested = false; }
     virtual int getElapsedSeconds() const { return elapsedSeconds; }
+    virtual bool isMagicianMode() const { return magicianMode; }
+    virtual bool isHideFacesEnabled() const { return hideFaces; }
+    virtual bool isNumericCardsEnabled() const { return numericCards; }
 };
 
 #endif // MAGICTRICK_H

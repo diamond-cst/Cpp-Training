@@ -5,76 +5,76 @@
 #include <vector>
 #include <algorithm>
 
-// 玩家记录结构 (Player record structure)
+// 玩家记录结构
 struct PlayerRecord {
-    std::string name;       // 玩家名称 (Player name)
-    int score;              // 分数 (Score)
-    int gamesPlayed;        // 游戏次数 (Games played)
-    int correctGuesses;     // 正确次数 (Correct guesses)
-    int streak;             // 连胜次数 (Win streak)
-    std::string timestamp;  // 时间戳 (Timestamp)
+    std::string name;       // 玩家名称
+    int score;              // 分数
+    int gamesPlayed;        // 游戏次数
+    int correctGuesses;     // 正确次数
+    int streak;             // 连胜次数
+    std::string timestamp;  // 时间戳
 
-    // 构造函数 (Constructor)
+    // 构造函数
     PlayerRecord();
     PlayerRecord(const std::string& n, int s, int gp, int cg, int st, const std::string& ts);
 
-    // 比较运算符（用于排序）(Comparison operator for sorting)
+    // 比较运算符（用于排序）
     bool operator<(const PlayerRecord& other) const;
     bool operator>(const PlayerRecord& other) const;
 };
 
-// 排行榜类 (Leaderboard class)
+// 排行榜类
 class Leaderboard {
 private:
-    std::vector<PlayerRecord> records;  // 玩家记录列表 (Player records list)
-    std::string filename;               // 存储文件名 (Storage filename)
-    static const int MAX_RECORDS = 10;  // 最多保存10条记录 (Max 10 records)
+    std::vector<PlayerRecord> records;  // 玩家记录列表
+    std::string filename;               // 存储文件名
+    static const int MAX_RECORDS = 10;  // 最多保存10条记录
 
 public:
-    // 构造函数 (Constructor)
+    // 构造函数
     explicit Leaderboard(const std::string& file = "leaderboard.dat");
 
-    // 析构函数 (Destructor)
+    // 析构函数
     ~Leaderboard();
 
-    // 添加或更新玩家记录 (Add or update player record)
+    // 添加或更新玩家记录
     void addOrUpdateRecord(const PlayerRecord& record);
 
-    // 获取排行榜 (Get leaderboard)
+    // 获取排行榜
     std::vector<PlayerRecord> getTopRecords(int count = MAX_RECORDS) const;
 
-    // 获取玩家记录 (Get player record)
+    // 获取玩家记录
     PlayerRecord* getPlayerRecord(const std::string& playerName);
 
-    // 显示排行榜 (Display leaderboard)
+    // 显示排行榜
     void display() const;
 
-    // 显示带颜色的排行榜 (Display colored leaderboard)
+    // 显示带颜色的排行榜
     void displayColored() const;
 
-    // 保存到文件 (Save to file)
+    // 保存到文件
     void save() const;
 
-    // 从文件加载 (Load from file)
+    // 从文件加载
     void load();
 
-    // 清空排行榜 (Clear leaderboard)
+    // 清空排行榜
     void clear();
 
-    // 获取记录数量 (Get record count)
+    // 获取记录数量
     int getRecordCount() const;
 
-    // 检查玩家是否在排行榜中 (Check if player is in leaderboard)
+    // 检查玩家是否在排行榜中
     bool hasPlayer(const std::string& playerName) const;
 
-    // 获取玩家排名 (Get player rank)
+    // 获取玩家排名
     int getPlayerRank(const std::string& playerName) const;
 
 private:
-    // 排序记录（按分数降序）(Sort records by score descending)
+    // 排序记录（按分数降序）
     void sortRecords();
 
-    // 限制记录数量 (Limit record count)
+    // 限制记录数量
     void trimRecords();
 };
 

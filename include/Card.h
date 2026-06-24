@@ -4,10 +4,10 @@
 #include <string>
 #include <iostream>
 
-// 卡牌类 (Card class)
+// 卡牌类
 class Card {
 public:
-    // 花色枚举 (Suit enumeration)
+    // 花色枚举
     enum class Suit {
         HEARTS,    // ♥ 红桃
         DIAMONDS,  // ♦ 方块
@@ -16,7 +16,7 @@ public:
         NONE       // 无花色（用于数字牌）
     };
 
-    // 点数枚举 (Rank enumeration)
+    // 点数枚举
     enum class Rank {
         ACE = 1,   // A
         TWO = 2,
@@ -40,34 +40,34 @@ private:
     int numericValue;   // 数字值（用于1-21或数字表示）
 
 public:
-    // 构造函数：数字牌 (Constructor for numeric cards)
-    explicit Card(int value);
+    // 构造函数：数字牌
+    explicit Card(int value); // 避免隐式转换
 
-    // 构造函数：标准扑克牌 (Constructor for standard playing cards)
+    // 构造函数：标准扑克牌
     Card(Suit s, Rank r);
 
-    // 默认构造函数 (Default constructor)
+    // 默认构造函数
     Card();
 
-    // 拷贝构造函数 (Copy constructor)
+    // 拷贝构造函数
     Card(const Card& other);
 
-    // 赋值运算符 (Assignment operator)
+    // 赋值运算符
     Card& operator=(const Card& other);
 
-    // 析构函数 (Destructor)
+    // 析构函数
     ~Card() = default;
 
-    // 获取器 (Getters)
+    // 获取器
     int getValue() const;
     Suit getSuit() const;
     Rank getRank() const;
     bool isNumeric() const;
 
-    // 转换为字符串 (Convert to string)
+    // 转换为字符串
     std::string toString(bool useColor = false) const;
 
-    // 比较运算符 (Comparison operators)
+    // 比较运算符
     bool operator==(const Card& other) const;
     bool operator!=(const Card& other) const;
     bool operator<(const Card& other) const;
@@ -75,18 +75,18 @@ public:
     bool operator<=(const Card& other) const;
     bool operator>=(const Card& other) const;
 
-    // 流运算符 (Stream operators)
+    // 流运算符
     friend std::ostream& operator<<(std::ostream& os, const Card& card);
     friend std::istream& operator>>(std::istream& is, Card& card);
 
 private:
-    // 辅助函数：获取花色符号 (Helper: get suit symbol)
+    // 辅助函数：获取花色符号
     std::string getSuitSymbol() const;
 
-    // 辅助函数：获取点数字符串 (Helper: get rank string)
+    // 辅助函数：获取点数字符串
     std::string getRankString() const;
 
-    // 辅助函数：获取花色颜色代码 (Helper: get suit color code)
+    // 辅助函数：获取花色颜色代码
     std::string getColorCode() const;
 };
 

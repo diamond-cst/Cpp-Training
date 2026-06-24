@@ -10,7 +10,9 @@ public:
     ~TwentyOneCardTrick() override = default;
 
 protected:
+    // 检查牌数是否为 21
     bool isDeckSizeAllowed(int cards) const override;
+    // 练习模式的基础分数
     int practiceBaseScore() const override;
 };
 

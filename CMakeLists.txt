@@ -41,15 +41,34 @@ endif()
 option(BUILD_GUI "Build GUI version" OFF)
 
 if(BUILD_GUI)
-    find_package(Qt6 COMPONENTS Widgets QUIET)
+    set(GUI_SOURCES
+        gui/main.cpp
+        gui/GuiUtils.cpp
+        gui/CardWidgets.cpp
+        gui/MagicTrickWindow.cpp
+        gui/LocalGameController.cpp
+        gui/InfoPages.cpp
+        gui/NetworkGamePage.cpp
+        gui/resources.qrc
+    )
+
+    set(CMAKE_AUTORCC ON)
+
+    find_package(Qt6 COMPONENTS Widgets Network QUIET)
     if(Qt6_FOUND)
-        add_executable(magic_trick_gui gui/qt_magic_trick.cpp)
-        target_link_libraries(magic_trick_gui Qt6::Widgets)
+        add_executable(magic_trick_gui ${GUI_SOURCES} ${SOURCES})
+        target_link_libraries(magic_trick_gui Qt6::Widgets Qt6::Network)
+        if(APPLE)
+            target_link_libraries(magic_trick_gui "-framework AudioToolbox" "-framework CoreFoundation")
+        endif()
     else()
-        find_package(Qt5 COMPONENTS Widgets QUIET)
+        find_package(Qt5 COMPONENTS Widgets Network QUIET)
         if(Qt5_FOUND)
-            add_executable(magic_trick_gui gui/qt_magic_trick.cpp)
-            target_link_libraries(magic_trick_gui Qt5::Widgets)
+            add_executable(magic_trick_gui ${GUI_SOURCES} ${SOURCES})
+            target_link_libraries(magic_trick_gui Qt5::Widgets Qt5::Network)
+            if(APPLE)
+                target_link_libraries(magic_trick_gui "-framework AudioToolbox" "-framework CoreFoundation")
+            endif()
         else()
             message(FATAL_ERROR "Qt Widgets not found. Install Qt, then rebuild with -DBUILD_GUI=ON.")
         endif()

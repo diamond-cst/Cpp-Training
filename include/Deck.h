@@ -7,19 +7,19 @@
 #include <random>
 #include <chrono>
 
-// Deck模板类 (Template Deck class)
+// Deck模板类
 template <typename T>
 class Deck {
 private:
-    T* cards;           // 动态数组存储卡牌 (Dynamic array for cards)
-    int capacity;       // 容量 (Capacity)
-    int size;           // 当前大小 (Current size)
+    T* cards;           // 动态数组存储卡牌
+    int capacity;       // 容量
+    int size;           // 当前大小
 
-    // 调整容量 (Resize capacity)
+    // 调整容量
     void resize(int newCapacity);
 
 public:
-    // 构造函数 (Constructors)
+    // 构造函数
     Deck();                                    // 默认构造函数
     explicit Deck(int initialCapacity);       // 指定容量构造函数
     Deck(const Deck& other);                  // 拷贝构造函数（深拷贝）
@@ -28,23 +28,23 @@ public:
     // 析构函数 (Destructor)
     ~Deck();
 
-    // 赋值运算符 (Assignment operators)
+    // 赋值运算符
     Deck& operator=(const Deck& other);       // 拷贝赋值
     Deck& operator=(Deck&& other) noexcept;   // 移动赋值
 
-    // 核心操作 (Core operations)
+    // 核心操作
     void addCard(const T& card);              // 添加卡牌
     void removeCard(int index);               // 移除指定位置的卡牌
     T getCard(int index) const;               // 获取指定位置的卡牌
     void shuffle();                           // 洗牌
     void clear();                             // 清空牌堆
 
-    // 查询 (Queries)
+    // 查询
     int getSize() const { return size; }
     int getCapacity() const { return capacity; }
     bool isEmpty() const { return size == 0; }
 
-    // 运算符重载 (Operator overloads)
+    // 运算符重载
     Deck operator+(const Deck& other) const;  // 合并牌堆
     Deck operator-(int index) const;          // 移除指定位置的牌
     Deck operator*(int times) const;          // 复制牌堆N次
@@ -55,7 +55,7 @@ public:
     T& operator[](int index);                 // 下标访问（可修改）
     const T& operator[](int index) const;     // 下标访问（只读）
 
-    // 流运算符 (Stream operators)
+    // 流运算符
     template <typename U>
     friend std::ostream& operator<<(std::ostream& os, const Deck<U>& deck);
 
@@ -65,13 +65,13 @@ public:
 
 // ==================== 实现部分 (Implementation) ====================
 
-// 默认构造函数 (Default constructor)
+// 默认构造函数
 template <typename T>
 Deck<T>::Deck() : cards(nullptr), capacity(52), size(0) {
     cards = new T[capacity];
 }
 
-// 指定容量构造函数 (Constructor with capacity)
+// 指定容量构造函数
 template <typename T>
 Deck<T>::Deck(int initialCapacity) : cards(nullptr), capacity(initialCapacity), size(0) {
     if (initialCapacity <= 0) {
@@ -80,7 +80,7 @@ Deck<T>::Deck(int initialCapacity) : cards(nullptr), capacity(initialCapacity), 
     cards = new T[capacity];
 }
 
-// 拷贝构造函数（深拷贝）(Copy constructor - deep copy)
+// 拷贝构造函数（深拷贝）
 template <typename T>
 Deck<T>::Deck(const Deck& other) : cards(nullptr), capacity(other.capacity), size(other.size) {
     cards = new T[capacity];
@@ -89,7 +89,7 @@ Deck<T>::Deck(const Deck& other) : cards(nullptr), capacity(other.capacity), siz
     }
 }
 
-// 移动构造函数 (Move constructor)
+// 移动构造函数
 template <typename T>
 Deck<T>::Deck(Deck&& other) noexcept
     : cards(other.cards), capacity(other.capacity), size(other.size) {
@@ -98,20 +98,20 @@ Deck<T>::Deck(Deck&& other) noexcept
     other.size = 0;
 }
 
-// 析构函数 (Destructor)
+// 析构函数
 template <typename T>
 Deck<T>::~Deck() {
     delete[] cards;
 }
 
-// 拷贝赋值运算符 (Copy assignment operator)
+// 拷贝赋值运算符
 template <typename T>
 Deck<T>& Deck<T>::operator=(const Deck& other) {
     if (this != &other) {
-        // 释放旧内存 (Release old memory)
+        // 释放旧内存
         delete[] cards;
 
-        // 分配新内存并拷贝 (Allocate new memory and copy)
+        // 分配新内存并拷贝
         capacity = other.capacity;
         size = other.size;
         cards = new T[capacity];
@@ -122,19 +122,19 @@ Deck<T>& Deck<T>::operator=(const Deck& other) {
     return *this;
 }
 
-// 移动赋值运算符 (Move assignment operator)
+// 移动赋值运算符
 template <typename T>
 Deck<T>& Deck<T>::operator=(Deck&& other) noexcept {
     if (this != &other) {
-        // 释放旧内存 (Release old memory)
+        // 释放旧内存
         delete[] cards;
 
-        // 转移所有权 (Transfer ownership)
+        // 转移所有权
         cards = other.cards;
         capacity = other.capacity;
         size = other.size;
 
-        // 清空源对象 (Clear source object)
+        // 清空源对象
         other.cards = nullptr;
         other.capacity = 0;
         other.size = 0;
@@ -142,10 +142,12 @@ Deck<T>& Deck<T>::operator=(Deck&& other) noexcept {
     return *this;
 }
 
-// 调整容量 (Resize capacity)
+// 调整容量
 template <typename T>
 void Deck<T>::resize(int newCapacity) {
     T* newCards = new T[newCapacity];
+
+    // 复制旧数据到新数组
     int copySize = (size < newCapacity) ? size : newCapacity;
     for (int i = 0; i < copySize; ++i) {
         newCards[i] = cards[i];
@@ -158,30 +160,30 @@ void Deck<T>::resize(int newCapacity) {
     }
 }
 
-// 添加卡牌 (Add card)
+// 添加卡牌
 template <typename T>
 void Deck<T>::addCard(const T& card) {
     if (size >= capacity) {
-        // 容量翻倍 (Double capacity)
+        // 容量翻倍
         resize(capacity * 2);
     }
     cards[size++] = card;
 }
 
-// 移除卡牌 (Remove card)
+// 移除卡牌
 template <typename T>
 void Deck<T>::removeCard(int index) {
     if (index < 0 || index >= size) {
         throw OutOfBoundsException(index, size);
     }
-    // 将后面的元素前移 (Shift elements forward)
+    // 将后面的元素前移
     for (int i = index; i < size - 1; ++i) {
         cards[i] = cards[i + 1];
     }
     --size;
 }
 
-// 获取卡牌 (Get card)
+// 获取卡牌
 template <typename T>
 T Deck<T>::getCard(int index) const {
     if (index < 0 || index >= size) {
@@ -190,7 +192,7 @@ T Deck<T>::getCard(int index) const {
     return cards[index];
 }
 
-// 洗牌 (Shuffle)
+// 洗牌
 template <typename T>
 void Deck<T>::shuffle() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -198,13 +200,13 @@ void Deck<T>::shuffle() {
     std::shuffle(cards, cards + size, rng);
 }
 
-// 清空 (Clear)
+// 清空
 template <typename T>
 void Deck<T>::clear() {
     size = 0;
 }
 
-// 合并牌堆 (Merge decks)
+// 合并牌堆
 template <typename T>
 Deck<T> Deck<T>::operator+(const Deck& other) const {
     Deck<T> result(size + other.size);
@@ -217,7 +219,7 @@ Deck<T> Deck<T>::operator+(const Deck& other) const {
     return result;
 }
 
-// 移除指定位置的牌 (Remove card at index)
+// 移除指定位置的牌
 template <typename T>
 Deck<T> Deck<T>::operator-(int index) const {
     Deck<T> result = *this;
@@ -225,7 +227,7 @@ Deck<T> Deck<T>::operator-(int index) const {
     return result;
 }
 
-// 复制牌堆N次 (Duplicate deck N times)
+// 复制牌堆N次
 template <typename T>
 Deck<T> Deck<T>::operator*(int times) const {
     if (times < 0) {
@@ -240,7 +242,7 @@ Deck<T> Deck<T>::operator*(int times) const {
     return result;
 }
 
-// 相等比较 (Equality comparison)
+// 相等比较
 template <typename T>
 bool Deck<T>::operator==(const Deck& other) const {
     if (size != other.size) return false;
@@ -250,13 +252,13 @@ bool Deck<T>::operator==(const Deck& other) const {
     return true;
 }
 
-// 不等比较 (Inequality comparison)
+// 不等比较
 template <typename T>
 bool Deck<T>::operator!=(const Deck& other) const {
     return !(*this == other);
 }
 
-// 下标访问（可修改）(Subscript operator - modifiable)
+// 下标访问（可修改）
 template <typename T>
 T& Deck<T>::operator[](int index) {
     if (index < 0 || index >= size) {
@@ -265,7 +267,7 @@ T& Deck<T>::operator[](int index) {
     return cards[index];
 }
 
-// 下标访问（只读）(Subscript operator - const)
+// 下标访问（只读）
 template <typename T>
 const T& Deck<T>::operator[](int index) const {
     if (index < 0 || index >= size) {
@@ -274,7 +276,7 @@ const T& Deck<T>::operator[](int index) const {
     return cards[index];
 }
 
-// 输出流运算符 (Output stream operator)
+// 输出流运算符
 template <typename U>
 std::ostream& operator<<(std::ostream& os, const Deck<U>& deck) {
     os << "牌组 [" << deck.size << "/" << deck.capacity << "]: ";
@@ -285,7 +287,7 @@ std::ostream& operator<<(std::ostream& os, const Deck<U>& deck) {
     return os;
 }
 
-// 输入流运算符 (Input stream operator)
+// 输入流运算符
 template <typename U>
 std::istream& operator>>(std::istream& is, Deck<U>& deck) {
     int count;

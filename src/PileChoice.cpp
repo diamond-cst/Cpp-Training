@@ -33,6 +33,7 @@ std::istream& operator>>(std::istream& is, PileChoice& choice) {
         throw InvalidInputException("读取牌堆选择失败");
     }
 
+    // 暂停请求
     if (token == "P" || token == "p") {
         choice.value = 0;
         choice.pauseRequested = true;
@@ -40,6 +41,7 @@ std::istream& operator>>(std::istream& is, PileChoice& choice) {
         return is;
     }
 
+    // 保存请求
     if (token == "S" || token == "s") {
         choice.value = 0;
         choice.pauseRequested = false;
@@ -47,6 +49,7 @@ std::istream& operator>>(std::istream& is, PileChoice& choice) {
         return is;
     }
 
+    // 牌堆选择
     if (token == "1" || token == "2" || token == "3") {
         choice.value = token[0] - '0';
         choice.pauseRequested = false;
